@@ -18,7 +18,7 @@ export default class App extends React.Component {
     }
 
     componentDidMount() {
-        return fetch('http://192.168.1.181:3000/ecs-services/[cluster-name]', {
+        return fetch('http://192.168.1.181:3000/ecs-cluster/[cluster]/services', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
