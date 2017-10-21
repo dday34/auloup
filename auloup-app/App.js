@@ -1,10 +1,13 @@
 import React from 'react';
+import aws from './aws';
 import { StyleSheet, Text, View, Image, Button, Alert, ListView, ActivityIndicator } from 'react-native';
+
+aws.getECSServices();
 
 function ServiceTile(item) {
     let bg = item.status === 'ACTIVE' ? 'green' : 'red';
 
-    return <Text style={{backgroundColor: bg, color: 'white', padding: 10, fontSize: 16, borderColor: 'white', borderWidth: 1}}>{item['service-name']}</Text>;
+    return <Text style={{backgroundColor: bg, color: 'white', padding: 10, fontSize: 16, borderColor: 'white', borderWidth: 1}}>{item.name}</Text>;
 }
 
 export default class App extends React.Component {
@@ -18,19 +21,12 @@ export default class App extends React.Component {
     }
 
     componentDidMount() {
-        return fetch('http://192.168.1.181:3000/ecs-cluster/[cluster]/services', {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-type': 'application/json'
-            }
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
+       return aws.getECSServices()
+            .then(services => {
                 let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
                 this.setState({
                     isLoading: false,
-                    dataSource: ds.cloneWithRows(responseJson),
+                    dataSource: ds.cloneWithRows(services),
                 });
             })
             .catch((error) => {
