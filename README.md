@@ -1,4 +1,4 @@
-# auloup
+# AWS ECS Mobile
 A mobile application that helps you monitor your services on AWS ECS.
 
 ## Installation
