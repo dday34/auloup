@@ -19,24 +19,25 @@ export default class App extends React.Component {
 
     componentDidMount() {
         const self = this;
-        aws.getCredentialsFromKeystore().then(({accessKey, secretKey}) => {
+        aws.getCredentialsFromKeystore().then(({accessKey, secretKey, region}) => {
             if(accessKey && secretKey) {
-                this.authenticate(accessKey, secretKey);
+                this.authenticate(accessKey, secretKey, region);
             } else {
                 self.setState({isLoading: false});
             }
         });
     }
 
-    authenticate(accessKey, secretKey) {
+    authenticate(accessKey, secretKey, region) {
         const self = this;
-        aws.setCredentials(accessKey, secretKey);
         self.setState({isLoading: true});
 
-        aws.getECSServices().then(services => {
-            self.setState({isAuthenticated: true, isLoading: false, services});
-        }, error => {
-            self.setState({isLoading: false, error});
+        aws.setCredentials(accessKey, secretKey, region).then(() => {
+            aws.getECSServices().then(services => {
+                self.setState({isAuthenticated: true, isLoading: false, services});
+            }, error => {
+                self.setState({isLoading: false, error});
+            });
         });
 
     }

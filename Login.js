@@ -1,5 +1,6 @@
 import React from 'react';
-import {View, Text, TextInput, Button} from 'react-native';
+import {View, Text, TextInput, Button, Picker} from 'react-native';
+import {regions} from './aws';
 
 export default class Login extends React.Component {
 
@@ -8,7 +9,8 @@ export default class Login extends React.Component {
 
         this.state = {
             accessKey: '',
-            secretKey: ''
+            secretKey: '',
+            region: regions[0].value
         };
     }
 
@@ -31,7 +33,14 @@ export default class Login extends React.Component {
                     value={this.state.secretKey}
                     onChangeText={secretKey => this.setState({secretKey})} />
 
-                <Button title="Login" onPress={() => onLogin(this.state.accessKey, this.state.secretKey)} />
+                <Text style={{paddingTop: 25, paddingLeft: 20, fontSize: 18, fontWeight: 'bold'}}>Region</Text>
+                <Picker
+                    selectedValue={this.state.region}
+                    onValueChange={itemValue => this.setState({region: itemValue})}>
+                    {regions.map(({label, value}) => <Picker.Item key={value} label={label} value={value} />)}
+                </Picker>
+
+                <Button title="Login" onPress={() => onLogin(this.state.accessKey, this.state.secretKey, this.state.region)} />
 
                 {error? <Text style={{color: 'red'}}>{error.message}</Text> : null}
             </View>
