@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Button } from 'react-native';
 import Login from './Login';
 import ServiceList from './ServiceList';
 import aws from './aws';
@@ -11,14 +11,25 @@ export default class App extends React.Component {
 
         this.state = {
             isAuthenticated: false,
-            isLoading: false,
+            isLoading: true,
             services: [],
             error: ''
         };
     }
 
+    componentDidMount() {
+        const self = this;
+        aws.getCredentialsFromKeystore().then(({accessKey, secretKey}) => {
+            if(accessKey && secretKey) {
+                this.authenticate(accessKey, secretKey);
+            } else {
+                self.setState({isLoading: false});
+            }
+        });
+    }
+
     authenticate(accessKey, secretKey) {
-        var self = this;
+        const self = this;
         aws.setCredentials(accessKey, secretKey);
         self.setState({isLoading: true});
 
@@ -28,6 +39,12 @@ export default class App extends React.Component {
             self.setState({isLoading: false, error});
         });
 
+    }
+
+    logout() {
+        aws.clearCredentials();
+
+        this.setState({isAuthenticated: false});
     }
 
     render() {
@@ -46,7 +63,10 @@ export default class App extends React.Component {
         }
 
         return (
-            <ServiceList services={this.state.services} />
+            <View style={{flex:1}}>
+                <Button title="Logout" onPress={this.logout.bind(this)}></Button>
+                <ServiceList services={this.state.services} />
+            </View>
         );
     }
 }
