@@ -75,15 +75,23 @@ async function getCredentialsFromKeystore() {
     };
 }
 
-async function getECSServices() {
+async function getECSServices(cluster) {
     const ecs = new AWS.ECS(config);
-    const cluster = 'prod-news-monitoring';
     const {serviceArns} = await ecs.listServices({cluster}).promise();
     const {services} = await ecs.describeServices({cluster, services: serviceArns}).promise();
 
     return services.map(({serviceName, status, serviceArn}) => {
         return {key: serviceArn, name: serviceName, status};
     });
+}
+
+async function getAllECSServices() {
+    const ecs = new AWS.ECS(config);
+    const {clusterArns} = await ecs.listClusters().promise();
+
+    const services = await Promise.all(clusterArns.map(getECSServices));
+
+    return [].concat.apply([], services);
 }
 
 async function clearCredentials() {
@@ -99,5 +107,6 @@ module.exports = {
     setCredentials,
     getCredentialsFromKeystore,
     clearCredentials,
-    getECSServices
+    getECSServices,
+    getAllECSServices
 };
