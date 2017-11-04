@@ -19,13 +19,27 @@ function ServiceTile({item}) {
 }
 
 function ServiceList({services}) {
+    const servicesSortedByState = services.sort((a, b) => {
+        const states = {'ALARM': 3, 'INSUFFICIENT_DATA': 2, 'OK': 1};
+
+        if(states[a.state] < states[b.state]) {
+            return 1;
+        }
+
+        if(states[a.state] > states[b.state]) {
+            return -1;
+        }
+
+        return 0;
+    });
+
     return (
         <View style={{flex: 1}}>
             <View style={{height: 60, backgroundColor: 'powderblue'}}>
                 <Text style={{paddingTop: 25, paddingLeft: 20, fontSize: 18, fontWeight: 'bold'}}>Services</Text>
             </View>
             <View style={{flex: 1, backgroundColor: 'steelblue'}}>
-                <FlatList data={services} renderItem={ServiceTile}/>
+                <FlatList data={servicesSortedByState} renderItem={ServiceTile}/>
             </View>
         </View>
     );
