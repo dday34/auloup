@@ -102,11 +102,62 @@ async function clearCredentials() {
     config.update({accessKeyId: null, secretAccessKey: null, region: null});
 }
 
+async function getECSServicesAlarms(token) {
+    const cloudwatch = new AWS.CloudWatch(config);
+    const {MetricAlarms: alarms, NextToken: nextToken} = await cloudwatch.describeAlarms({NextToken: token}).promise();
+    const ecsAlarms = alarms
+          .filter(alarm => alarm.Namespace === 'AWS/ECS' && alarm.Dimensions.find(d => d.Name === 'ServiceName'))
+          .map(alarm => {
+              return {
+                  metric: alarm.MetricName,
+                  state: alarm.StateValue,
+                  operator: alarm.ComparisonOperator,
+                  threshold: alarm.Threshold,
+                  service: alarm.Dimensions.find(d => d.Name === 'ServiceName').Value
+              };
+          });
+
+    if (nextToken) {
+        return getECSServicesAlarms(nextToken)
+            .then(nextAlarms => {
+                return ecsAlarms.concat(nextAlarms);
+            });
+    }
+
+    return ecsAlarms;
+}
+
+function setState(service) {
+    const alarm = service.alarms.find(a => a.state === 'ALARM');
+    const insuficientData = service.alarms.find(a => a.state === 'INSUFFICIENT_DATA');
+
+    if(alarm) {
+        return 'ALARM';
+    }
+
+    if(insuficientData) {
+        return 'INSUFFICIENT_DATA';
+    }
+
+    return 'OK';
+}
+
+async function getECSServicesWithAlarms() {
+    const services = await getAllECSServices();
+    const alarms = await getECSServicesAlarms();
+
+    return services.map(s => {
+        s.alarms = alarms.filter(a => a.service === s.name);
+        s.state = setState(s);
+
+        return s;
+    });
+}
+
 module.exports = {
     regions,
     setCredentials,
     getCredentialsFromKeystore,
     clearCredentials,
-    getECSServices,
-    getAllECSServices
+    getECSServicesWithAlarms
 };

@@ -33,7 +33,7 @@ export default class App extends React.Component {
         self.setState({isLoading: true});
 
         aws.setCredentials(accessKey, secretKey, region).then(() => {
-            aws.getAllECSServices().then(services => {
+            aws.getECSServicesWithAlarms().then(services => {
                 self.setState({isAuthenticated: true, isLoading: false, services});
             }, error => {
                 self.setState({isLoading: false, error});

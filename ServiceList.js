@@ -2,7 +2,18 @@ import React from 'react';
 import { Text, View, FlatList } from 'react-native';
 
 function ServiceTile({item}) {
-    let bg = item.status === 'ACTIVE' ? 'green' : 'red';
+    let bg;
+
+    switch(item.state) {
+        case 'ALARM':
+            bg = 'red';
+            break;
+        case 'INSUFFICIENT_DATA':
+            bg = 'yellow';
+            break;
+        default:
+            bg = 'green';
+    }
 
     return <Text style={{backgroundColor: bg, color: 'white', padding: 10, fontSize: 16, borderColor: 'white', borderWidth: 1}}>{item.name}</Text>;
 }
