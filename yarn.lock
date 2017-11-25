@@ -335,8 +335,8 @@ auth0@^2.7.0:
     rest-facade "^1.5.0"
 
 aws-sdk@^2.138.0:
-  version "2.138.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.138.0.tgz#acb923132b51fafe8a464aa757f65d61ac30bd77"
+  version "2.156.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.156.0.tgz#409c06f7051d58320cb389a024ca7b61ce31f136"
   dependencies:
     buffer "4.9.1"
     crypto-browserify "1.0.9"
@@ -1925,8 +1925,8 @@ expand-range@^1.8.1:
     fill-range "^2.1.0"
 
 expo@^21.0.0:
-  version "21.0.2"
-  resolved "https://registry.yarnpkg.com/expo/-/expo-21.0.2.tgz#8420b9f4b95503c464575a31fd9c820363caef9d"
+  version "21.0.3"
+  resolved "https://registry.yarnpkg.com/expo/-/expo-21.0.3.tgz#d30172e97b3b48cc67afae8a94fc245f284112d3"
   dependencies:
     "@expo/vector-icons" "^5.0.0"
     babel-preset-expo "^3.0.0"
