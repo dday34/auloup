@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, ActivityIndicator, Button } from 'react-native';
-import Login from './Login';
-import ServiceList from './ServiceList';
-import aws from './aws';
+import { View, ActivityIndicator } from 'react-native';
+import auth from './auth';
+import { createRootNavigator } from './router';
 
 export default class App extends React.Component {
 
@@ -11,51 +10,21 @@ export default class App extends React.Component {
 
         this.state = {
             isAuthenticated: false,
-            isLoading: true,
-            services: [],
-            error: ''
+            checkedAuthentication: false
         };
     }
 
     componentDidMount() {
-        const self = this;
-        aws.getCredentialsFromKeystore().then(({accessKey, secretKey, region}) => {
-            if(accessKey && secretKey) {
-                this.authenticate(accessKey, secretKey, region);
-            } else {
-                self.setState({isLoading: false});
-            }
-        });
-    }
-
-    authenticate(accessKey, secretKey, region) {
-        const self = this;
-        self.setState({isLoading: true});
-
-        aws.setCredentials(accessKey, secretKey, region).then(() => {
-            aws.getECSServicesWithAlarms().then(services => {
-                self.setState({isAuthenticated: true, isLoading: false, services});
-            }, error => {
-                self.setState({isLoading: false, error});
+        auth.isLoggedIn()
+            .then(res => {
+                this.setState({isAuthenticated: res, checkedAuthentication: true})
             });
-        });
-
-    }
-
-    logout() {
-        aws.clearCredentials();
-
-        this.setState({isAuthenticated: false});
     }
 
     render() {
-        if (!this.state.isAuthenticated && !this.state.isLoading) {
-            return (
-                <Login onLogin={this.authenticate.bind(this)} error={this.state.error} />
-            );
-        }
+       const {isAuthenticated, checkedAuthentication} = this.state;
 
-        if (this.state.isLoading) {
+        if(!checkedAuthentication) {
             return (
                 <View style={{flex: 1, paddingTop: 20}}>
                     <ActivityIndicator />
@@ -63,11 +32,8 @@ export default class App extends React.Component {
             );
         }
 
-        return (
-            <View style={{flex:1}}>
-                <Button title="Logout" onPress={this.logout.bind(this)}></Button>
-                <ServiceList services={this.state.services} />
-            </View>
-        );
+        const Layout = createRootNavigator(isAuthenticated);
+
+        return <Layout />;
     }
 }

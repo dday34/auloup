@@ -3,7 +3,8 @@ import {
     Text,
     View,
     FlatList,
-    TouchableOpacity
+    TouchableOpacity,
+    Button
 } from 'react-native';
 import {
     TabRouter,
@@ -12,6 +13,7 @@ import {
     SafeAreaView,
     addNavigationHelpers,
 } from 'react-navigation';
+import aws from '../aws';
 
 function AlarmLine(alarm) {
     return <Text style={{color: 'white'}}>{alarm.item.metric} {alarm.item.operator} {alarm.item.threshold}</Text>
@@ -105,30 +107,56 @@ function byName(service1, service2) {
     return 0;
 }
 
-function ServicesTabView({ services, router, navigation }) {
-    const { routes, index } = navigation.state;
-    const ActiveScreen = router.getComponentForRouteName(routes[index].routeName);
-    const orderedServices = services.sort(byName);
+class ServicesTabView extends React.Component {
 
-    return (
-        <SafeAreaView forceInset={{ top: 'always' }}>
-            <View style={{height: 60, backgroundColor: 'powderblue'}}>
-                <Text style={{paddingTop: 25, paddingLeft: 20, fontSize: 18, fontWeight: 'bold'}}>Services</Text>
-            </View>
-            <ServicesTabBar navigation={navigation} />
-            <ActiveScreen
-                navigation={addNavigationHelpers({
-                        dispatch: navigation.dispatch,
-                        state: routes[index],
-                })}
-                screenProps={{services: orderedServices}}
-            />
-        </SafeAreaView>
-    );
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            services: []
+        };
+    }
+
+    componentDidMount() {
+        aws.getECSServicesWithAlarms()
+           .then(services => this.setState({services}));
+    }
+
+    render() {
+        const { navigation, router } = this.props;
+        const { routes, index } = navigation.state;
+        const ActiveScreen = router.getComponentForRouteName(routes[index].routeName);
+        const orderedServices = this.state.services.sort(byName);
+
+        return (
+            <SafeAreaView forceInset={{ top: 'always' }}>
+                <ServicesTabBar navigation={navigation} />
+                <ActiveScreen
+                    navigation={addNavigationHelpers({
+                            dispatch: navigation.dispatch,
+                            state: routes[index],
+                    })}
+                    screenProps={{services: orderedServices}}
+                />
+            </SafeAreaView>
+        );
+    }
 }
 
 const ServicesTabs = createNavigationContainer(
     createNavigator(ServicesTabRouter)(ServicesTabView)
 );
 
-export default ServicesTabs;
+class Services extends React.Component {
+
+    static navigationOptions = ({ navigation }) => ({
+        title: 'Services',
+        headerRight: <Button title="Settings" onPress={() => navigation.navigate('Settings')} />
+    });
+
+    render() {
+        return <ServicesTabs />;
+    }
+}
+
+export default Services;

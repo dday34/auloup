@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, Text, TextInput, Button, Picker} from 'react-native';
-import {regions} from './aws';
+import aws from '../aws';
+import auth from '../auth';
 
 export default class Login extends React.Component {
 
@@ -10,12 +11,23 @@ export default class Login extends React.Component {
         this.state = {
             accessKey: '',
             secretKey: '',
-            region: regions[0].value
+            region: aws.regions[0].value,
+            error: ''
         };
     }
 
+    onLogin() {
+        const {accessKey, secretKey, region} = this.state;
+        const { navigation } = this.props;
+
+        auth.login(accessKey, secretKey, region)
+            .then(() => {
+                return navigation.navigate('App');
+            });
+    }
+
     render() {
-        const { onLogin, error } = this.props;
+        const { error } = this.state;
 
         return (
             <View>
@@ -37,10 +49,10 @@ export default class Login extends React.Component {
                 <Picker
                     selectedValue={this.state.region}
                     onValueChange={itemValue => this.setState({region: itemValue})}>
-                    {regions.map(({label, value}) => <Picker.Item key={value} label={label} value={value} />)}
+                    {aws.regions.map(({label, value}) => <Picker.Item key={value} label={label} value={value} />)}
                 </Picker>
 
-                <Button title="Login" onPress={() => onLogin(this.state.accessKey, this.state.secretKey, this.state.region)} />
+                <Button title="Login" onPress={() => this.onLogin()} />
 
                 {error? <Text style={{color: 'red'}}>{error.message}</Text> : null}
             </View>

@@ -1,9 +1,6 @@
-import { AsyncStorage } from 'react-native';
 import AWS from 'aws-sdk/dist/aws-sdk-react-native';
-import Expo from 'expo';
 
 const config = new AWS.Config();
-
 const regions = [
     {
         label: 'US East (Ohio)',
@@ -55,24 +52,8 @@ const regions = [
     }
 ];
 
-async function setCredentials(accessKey, secretKey, region) {
-    await Expo.SecureStore.setItemAsync('accessKey', accessKey);
-    await Expo.SecureStore.setItemAsync('secretKey', secretKey);
-    await AsyncStorage.setItem('region', region);
-
+function updateCredentials(accessKey, secretKey, region) {
     config.update({accessKeyId: accessKey, secretAccessKey: secretKey, region});
-}
-
-async function getCredentialsFromKeystore() {
-    let accessKey = await Expo.SecureStore.getItemAsync('accessKey');
-    let secretKey = await Expo.SecureStore.getItemAsync('secretKey');
-    let region = await AsyncStorage.getItem('region');
-
-    return {
-        accessKey,
-        secretKey,
-        region
-    };
 }
 
 async function getECSServices(cluster) {
@@ -95,10 +76,6 @@ async function getAllECSServices() {
 }
 
 async function clearCredentials() {
-    await Expo.SecureStore.deleteItemAsync('accessKey');
-    await Expo.SecureStore.deleteItemAsync('secretKey');
-    await AsyncStorage.removeItem('region');
-
     config.update({accessKeyId: null, secretAccessKey: null, region: null});
 }
 
@@ -142,22 +119,37 @@ function setState(service) {
     return 'OK';
 }
 
-async function getECSServicesWithAlarms() {
+let servicesWithAlarmsCache;
+
+async function loadECSServicesWithAlarms() {
     const services = await getAllECSServices();
     const alarms = await getECSServicesAlarms();
 
-    return services.map(s => {
+    const servicesWithAlarms = services.map(s => {
         s.alarms = alarms.filter(a => a.service === s.name);
         s.state = setState(s);
 
         return s;
     });
+
+    servicesWithAlarmsCache = servicesWithAlarms;
+
+    return servicesWithAlarmsCache;
+}
+
+async function getECSServicesWithAlarms() {
+
+    if(!servicesWithAlarmsCache) {
+        return loadECSServicesWithAlarms();
+    }
+
+    return servicesWithAlarmsCache;
 }
 
 module.exports = {
     regions,
-    setCredentials,
-    getCredentialsFromKeystore,
+    updateCredentials,
     clearCredentials,
+    loadECSServicesWithAlarms,
     getECSServicesWithAlarms
 };
