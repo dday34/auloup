@@ -27,15 +27,22 @@ function ServiceTile({item}) {
     );
 }
 
-function ServiceList({services}) {
-    const allServices = services.sort((a, b) => {
-        if(a.name < b.name) return -1;
-        if(a.name > b.name) return 1;
+function byName(service1, service2) {
+    if(service1.name < service2.name) return -1;
+    if(service1.name > service2.name) return 1;
 
-        return 0;
-    });
-    const unhealthyServices = services.filter(s => s.state !== 'OK');
-    const data = [{title: 'Unhealthy Services', data: unhealthyServices}, {title: 'All services', data: allServices}];
+    return 0;
+}
+
+function isHealthy(service) {
+    return service.state === 'OK';
+}
+
+function ServiceList({services}) {
+    const orderedServices = services.sort(byName);
+    const healthyServices = orderedServices.filter(isHealthy);
+    const unhealthyServices = orderedServices.filter(s => !isHealthy(s));
+    const data = [{title: 'Unhealthy Services', data: unhealthyServices}, {title: 'Healthy services', data: healthyServices}];
 
     return (
         <View style={{flex: 1}}>
