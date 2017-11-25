@@ -8,9 +8,7 @@ async function login(accessKey, secretKey, region) {
     await AsyncStorage.setItem('region', region);
 
     aws.updateCredentials(accessKey, secretKey, region);
-    await aws.loadECSServicesWithAlarms();
-
-    return 'success';
+    return aws.loadECSServicesWithAlarms();
 }
 
 async function getCredentialsFromKeystore() {
@@ -31,8 +29,6 @@ async function logout() {
     await AsyncStorage.removeItem('region');
 
     aws.clearCredentials();
-
-    return 'success';
 }
 
 async function isLoggedIn() {

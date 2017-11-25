@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, TextInput, Button, Picker} from 'react-native';
+import {View, Text, TextInput, Button, Picker, ActivityIndicator} from 'react-native';
 import aws from '../aws';
 import auth from '../auth';
 
@@ -12,7 +12,8 @@ export default class Login extends React.Component {
             accessKey: '',
             secretKey: '',
             region: aws.regions[0].value,
-            error: ''
+            error: '',
+            isLoading: false
         };
     }
 
@@ -20,14 +21,28 @@ export default class Login extends React.Component {
         const {accessKey, secretKey, region} = this.state;
         const { navigation } = this.props;
 
+        this.setState({isLoading: true});
+
         auth.login(accessKey, secretKey, region)
             .then(() => {
+                this.setState({isLoading: false});
+
                 return navigation.navigate('App');
+            }, error => {
+                this.setState({error, isLoading: false});
             });
     }
 
     render() {
-        const { error } = this.state;
+        const { error, isLoading } = this.state;
+
+        if(isLoading) {
+            return (
+                <View style={{flex: 1, paddingTop: 20}}>
+                    <ActivityIndicator />
+                </View>
+            );
+        }
 
         return (
             <View>
