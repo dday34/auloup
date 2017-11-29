@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    StyleSheet,
     Text,
     View,
     FlatList,
@@ -15,27 +16,55 @@ import {
 } from 'react-navigation';
 import aws from '../aws';
 
+const styles = StyleSheet.create({
+    tabBar: {
+        flexDirection: 'row',
+        height: 48,
+    },
+    tab: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'white'
+    },
+    activeTab: {
+        borderBottomWidth: 3,
+        borderBottomColor: '#4938DB'
+    },
+    tabText: {
+        color: '#4938DB'
+    },
+    service: {
+        flex: 2,
+        backgroundColor: 'white',
+        padding: 10,
+        borderColor: 'white',
+        borderWidth: 1
+    },
+    serviceTitle: {
+        fontSize: 16,
+        color: 'black'
+    },
+    alarm: {
+        color: 'black'
+    },
+});
+
 function AlarmLine(alarm) {
-    return <Text style={{color: 'white'}}>{alarm.item.metric} {alarm.item.operator} {alarm.item.threshold}</Text>
+    const operatorFormat = {
+        GreaterThanOrEqualToThreshold: '>=',
+        GreaterThanThreshold: '>',
+        LessThanThreshold: '<',
+        LessThanOrEqualToThreshold: '<='
+    };
+
+    return <Text style={styles.alarm}>{alarm.item.metric} {operatorFormat[alarm.item.operator]} {alarm.item.threshold}</Text>
 }
 
 function ServiceTile({item}) {
-    let bg;
-
-    switch(item.state) {
-        case 'ALARM':
-            bg = 'red';
-            break;
-        case 'INSUFFICIENT_DATA':
-            bg = 'yellow';
-            break;
-        default:
-            bg = 'green';
-    }
-
     return (
-        <View style={{flex: 2, backgroundColor: bg, padding: 10, borderColor: 'white', borderWidth: 1}}>
-            <Text style={{fontSize: 16, color: 'white'}}>{item.name}</Text>
+        <View style={styles.service}>
+            <Text style={styles.serviceTitle}>{item.name}</Text>
             <FlatList data={item.alarms.filter(a => a.state !== 'OK')} renderItem={AlarmLine} keyExtractor={(item, index) => index}/>
         </View>
     );
@@ -75,25 +104,14 @@ const ServicesTabRouter = TabRouter({
 function ServicesTabBar({ navigation }) {
     const { routes } = navigation.state;
     return (
-        <SafeAreaView style={{
-            flexDirection: 'row',
-            height: 48,
-        }}>
+        <SafeAreaView style={styles.tabBar}>
             {routes.map(route => (
                 <TouchableOpacity
                     onPress={() => navigation.navigate(route.routeName)}
                     key={route.routeName}
-                    style={{
-                        flex: 1,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: 4,
-                        borderWidth: 1,
-                        borderColor: '#ddd',
-                        borderRadius: 4,
-                    }}
+                    style={styles.tab}
                     >
-                    <Text>{route.routeName}</Text>
+                    <Text style={styles.tabText}>{route.routeName}</Text>
                 </TouchableOpacity>
             ))}
         </SafeAreaView>
@@ -129,7 +147,7 @@ class ServicesTabView extends React.Component {
         const orderedServices = this.state.services.sort(byName);
 
         return (
-            <SafeAreaView forceInset={{ top: 'always' }}>
+            <SafeAreaView>
                 <ServicesTabBar navigation={navigation} />
                 <ActiveScreen
                     navigation={addNavigationHelpers({
