@@ -18,6 +18,23 @@ import aws from '../aws';
 
 const brandColor = '#3F51B5';
 const styles = StyleSheet.create({
+    header: {
+        flexDirection: 'row',
+        backgroundColor: brandColor,
+        height: 56,
+        marginTop: 20,
+        paddingHorizontal: 20,
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    headerTitle: {
+        color: 'white',
+        fontSize: 20,
+        lineHeight: 23
+    },
+    headerSettings: {
+        color: 'white'
+    },
     servicesTabView: {
         flex: 1
     },
@@ -184,11 +201,20 @@ const ServicesTabs = createNavigationContainer(
     createNavigator(ServicesTabRouter)(ServicesTabView)
 );
 
+function Header({navigation}) {
+    return (
+        <View style={styles.header}>
+            <Text style={styles.headerTitle}>{navigation.state.routes[navigation.state.index].routeName}</Text>
+            <Button title="Settings" onPress={() => navigation.navigate('Settings')} />
+        </View>
+    );
+}
+
 class Services extends React.Component {
 
     static navigationOptions = ({ navigation }) => ({
         title: 'Services',
-        headerRight: <Button title="Settings" onPress={() => navigation.navigate('Settings')} />
+        header: Header
     });
 
     render() {
