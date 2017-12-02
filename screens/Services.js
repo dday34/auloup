@@ -98,18 +98,20 @@ const ServicesTabRouter = TabRouter({
         path: 'healthy'
     }
 }, {
-    initialRouteName: 'Unhealthy'
+    initialRouteName: 'Unhealthy',
+    animationEnabled: true
 });
 
 function ServicesTabBar({ navigation }) {
-    const { routes } = navigation.state;
+    const { routes, index: activeTabIndex } = navigation.state;
+
     return (
         <SafeAreaView style={styles.tabBar}>
-            {routes.map(route => (
+            {routes.map((route, index) => (
                 <TouchableOpacity
                     onPress={() => navigation.navigate(route.routeName)}
                     key={route.routeName}
-                    style={styles.tab}
+                    style={[styles.tab, index === activeTabIndex && styles.activeTab]}
                     >
                     <Text style={styles.tabText}>{route.routeName}</Text>
                 </TouchableOpacity>
