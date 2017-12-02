@@ -16,6 +16,7 @@ import {
 } from 'react-navigation';
 import aws from '../aws';
 
+const brandColor = '#3F51B5';
 const styles = StyleSheet.create({
     servicesTabView: {
         flex: 1
@@ -33,14 +34,16 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'white'
+        backgroundColor: brandColor
     },
     activeTab: {
         borderBottomWidth: 3,
-        borderBottomColor: '#4938DB'
+        borderBottomColor: 'white'
     },
     tabText: {
-        color: '#4938DB'
+        color: 'white',
+        fontSize: 14,
+        letterSpacing: 1
     },
     service: {
         flex: 1,
@@ -127,7 +130,7 @@ function ServicesTabBar({ navigation }) {
                     key={route.routeName}
                     style={[styles.tab, index === activeTabIndex && styles.activeTab]}
                     >
-                    <Text style={styles.tabText}>{route.routeName}</Text>
+                    <Text style={styles.tabText}>{route.routeName.toUpperCase()}</Text>
                 </TouchableOpacity>
             ))}
         </SafeAreaView>
