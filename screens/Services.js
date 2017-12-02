@@ -17,9 +17,17 @@ import {
 import aws from '../aws';
 
 const styles = StyleSheet.create({
+    servicesTabView: {
+        flex: 1
+    },
     tabBar: {
         flexDirection: 'row',
         height: 48,
+        shadowColor: 'black',
+        shadowOffset: {width: 0, height: 1},
+        shadowOpacity: 0.17,
+        shadowRadius: 2,
+        zIndex: 1
     },
     tab: {
         flex: 1,
@@ -35,18 +43,24 @@ const styles = StyleSheet.create({
         color: '#4938DB'
     },
     service: {
-        flex: 2,
+        flex: 1,
         backgroundColor: 'white',
-        padding: 10,
-        borderColor: 'white',
+        paddingTop: 16,
+        paddingBottom: 20,
+        paddingHorizontal: 16,
+        borderColor: '#F2F2F2',
         borderWidth: 1
     },
     serviceTitle: {
         fontSize: 16,
+        lineHeight: 19,
         color: 'black'
     },
     alarm: {
-        color: 'black'
+        color: '#828282',
+        fontSize: 14,
+        lineHeight: 16,
+        marginTop: 5
     },
 });
 
@@ -64,7 +78,7 @@ function AlarmLine(alarm) {
 function ServiceTile({item}) {
     return (
         <View style={styles.service}>
-            <Text style={styles.serviceTitle}>{item.name}</Text>
+            <Text style={styles.serviceTitle}>{item.name.charAt(0).toUpperCase() + item.name.slice(1)}</Text>
             <FlatList data={item.alarms.filter(a => a.state !== 'OK')} renderItem={AlarmLine} keyExtractor={(item, index) => index}/>
         </View>
     );
@@ -149,7 +163,7 @@ class ServicesTabView extends React.Component {
         const orderedServices = this.state.services.sort(byName);
 
         return (
-            <SafeAreaView>
+            <SafeAreaView style={styles.servicesTabView}>
                 <ServicesTabBar navigation={navigation} />
                 <ActiveScreen
                     navigation={addNavigationHelpers({
