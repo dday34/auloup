@@ -5,7 +5,7 @@ import {
     View,
     FlatList,
     TouchableOpacity,
-    Button
+    Image
 } from 'react-native';
 import {
     TabRouter,
@@ -18,6 +18,11 @@ import { brandColor } from '../styles';
 import aws from '../aws';
 
 const styles = StyleSheet.create({
+    settingsIcon: {
+        width: 30,
+        height: 30,
+        marginRight: 10
+    },
     servicesTabView: {
         flex: 1
     },
@@ -188,7 +193,11 @@ class Services extends React.Component {
 
     static navigationOptions = ({ navigation }) => ({
         title: 'Services',
-        headerRight: <Button title="Settings" onPress={() => navigation.navigate('Settings')} />
+        headerRight: (
+            <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+                <Image source={require('../images/settings.png')} style={styles.settingsIcon}  />
+            </TouchableOpacity>
+        )
     });
 
     render() {

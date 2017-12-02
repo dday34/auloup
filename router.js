@@ -1,5 +1,4 @@
 import React from 'react';
-import Button from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
 import { brandColor } from './styles';
