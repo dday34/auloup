@@ -2,6 +2,7 @@ import React from 'react';
 import Button from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
+import { brandColor } from './styles';
 import Login from './screens/Login';
 import Services from './screens/Services';
 import Settings from './screens/Settings';
@@ -14,7 +15,17 @@ export const App = StackNavigator({
         screen: Settings
     }
 }, {
-    initialRouteName: 'Services'
+    initialRouteName: 'Services',
+    navigationOptions: {
+        headerTintColor: 'white',
+        headerStyle: {
+            backgroundColor: brandColor,
+            borderWidth: 0
+        },
+        headerTitleStyle: {
+            color: 'white'
+        }
+    }
 });
 
 function createRootNavigator(signedIn = false) {
