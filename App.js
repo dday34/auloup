@@ -1,7 +1,21 @@
 import React from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import {
+    View,
+    ActivityIndicator,
+    StyleSheet
+} from 'react-native';
 import auth from './auth';
 import { createRootNavigator } from './router';
+import { brandColor } from './styles';
+
+const styles = StyleSheet.create({
+    loadingPage: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: brandColor,
+        paddingTop: 20
+    }
+});
 
 export default class App extends React.Component {
 
@@ -26,8 +40,8 @@ export default class App extends React.Component {
 
         if(!checkedAuthentication) {
             return (
-                <View style={{flex: 1, paddingTop: 20}}>
-                    <ActivityIndicator />
+                <View style={styles.loadingPage}>
+                    <ActivityIndicator size="large" color="white"  />
                 </View>
             );
         }

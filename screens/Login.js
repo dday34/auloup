@@ -49,6 +49,12 @@ const styles = StyleSheet.create({
     },
     errorMessage: {
         color: 'red'
+    },
+    loadingPage: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: brandColor,
+        paddingTop: 20
     }
 });
 
@@ -87,8 +93,8 @@ export default class Login extends React.Component {
 
         if(isLoading) {
             return (
-                <View style={{flex: 1, paddingTop: 20}}>
-                    <ActivityIndicator />
+                <View style={styles.loadingPage}>
+                    <ActivityIndicator size="large" color="white" />
                 </View>
             );
         }
