@@ -1,7 +1,56 @@
 import React from 'react';
-import {View, Text, TextInput, Button, Picker, ActivityIndicator} from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    Button,
+    Picker,
+    ActivityIndicator,
+    StyleSheet
+} from 'react-native';
 import aws from '../aws';
 import auth from '../auth';
+import { brandColor } from '../styles';
+
+const styles = StyleSheet.create({
+    login: {
+        padding: 20,
+        backgroundColor: brandColor
+    },
+    title: {
+        paddingTop: 25,
+        paddingBottom: 25,
+        fontWeight: 'bold',
+        fontSize: 20,
+        color: 'white'
+    },
+    inputLabel: {
+        fontSize: 18,
+        color: 'white'
+    },
+    input: {
+        borderColor: 'white',
+        backgroundColor: 'white',
+        borderWidth: 1,
+        height: 40,
+        marginTop: 10,
+        marginBottom: 20
+    },
+    picker: {
+    },
+    pickerItem: {
+        color: 'white'
+    },
+    loginButton: {
+        padding: 10,
+        borderColor: 'white',
+        borderWidth: 1,
+        color: 'white'
+    },
+    errorMessage: {
+        color: 'red'
+    }
+});
 
 export default class Login extends React.Component {
 
@@ -45,31 +94,33 @@ export default class Login extends React.Component {
         }
 
         return (
-            <View>
-                <Text style={{paddingTop: 25, paddingLeft: 20, fontSize: 18, fontWeight: 'bold'}}>Welcome to ECS Mobile</Text>
+            <View style={styles.login}>
+                <Text style={styles.title}>Omni</Text>
 
-                <Text style={{paddingTop: 25, paddingLeft: 20, fontSize: 18, fontWeight: 'bold'}}>Access Key</Text>
+                <Text style={styles.inputLabel}>Access Key</Text>
                 <TextInput
-                    style={{borderColor: 'black', borderWidth: 1, height: 40, marginTop: 20, marginLeft: 20, marginRight: 20}}
+                    style={styles.input}
                     value={this.state.accessKey}
                     onChangeText={(accessKey) => this.setState({accessKey})} />
 
-                <Text style={{paddingTop: 25, paddingLeft: 20, fontSize: 18, fontWeight: 'bold'}}>Secret Key</Text>
+                <Text style={styles.inputLabel}>Secret Key</Text>
                 <TextInput
-                    style={{borderColor: 'black', borderWidth: 1, height: 40, marginTop: 20, marginLeft: 20, marginRight: 20}}
+                    style={styles.input}
                     value={this.state.secretKey}
                     onChangeText={secretKey => this.setState({secretKey})} />
 
-                <Text style={{paddingTop: 25, paddingLeft: 20, fontSize: 18, fontWeight: 'bold'}}>Region</Text>
+                <Text style={styles.inputLabel}>Region</Text>
                 <Picker
+                    style={styles.picker}
+                    itemStyle={styles.pickerItem}
                     selectedValue={this.state.region}
                     onValueChange={itemValue => this.setState({region: itemValue})}>
-                    {aws.regions.map(({label, value}) => <Picker.Item key={value} label={label} value={value} />)}
+                    {aws.regions.map(({label, value}) => <Picker.Item key={value} label={label} value={value} styles={styles.pickerItem} />)}
                 </Picker>
 
-                <Button title="Login" onPress={() => this.onLogin()} />
+                <Button color="white" title="Login" onPress={() => this.onLogin()} />
 
-                {error? <Text style={{color: 'red'}}>{error.message}</Text> : null}
+                {error? <Text style={errorMessage}>{error.message}</Text> : null}
             </View>
         );
     }
