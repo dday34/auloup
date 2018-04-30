@@ -1,7 +1,7 @@
 {
   "expo": {
       "sdkVersion": "26.0.0",
-      "icon": "AWS-icon.png",
+      "icon": "images/AWS-icon.png",
       "version": "1.0.0",
       "slug": "aws-ecs-mobile",
       "android": {
