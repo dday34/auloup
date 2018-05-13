@@ -1,9 +1,13 @@
 {
   "expo": {
+      "name": "AWS ECS Mobile",
       "sdkVersion": "26.0.0",
       "icon": "images/AWS-icon.png",
       "version": "1.0.0",
       "slug": "aws-ecs-mobile",
+      "ios": {
+          "bundleIdentifier": "com.dsendner.awsecsmobile"
+      },
       "android": {
           "package": "com.dsendner.awsecsmobile"
       }
