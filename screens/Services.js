@@ -111,19 +111,16 @@ class ServicesTabView extends React.Component {
     }
 
     render() {
-        const { navigation, router } = this.props;
+        const { navigation, descriptors } = this.props;
         const { routes, index } = navigation.state;
-        const ActiveScreen = router.getComponentForRouteName(routes[index].routeName);
+
+        const ActiveScreen = descriptors[routes[index].routeName].getComponent();
         const orderedServices = this.state.services.sort(byName);
 
         return (
             <SafeAreaView style={styles.servicesTabView}>
                 <ServicesTabBar navigation={navigation} />
                 <ActiveScreen
-                    navigation={addNavigationHelpers({
-                            dispatch: navigation.dispatch,
-                            state: routes[index],
-                    })}
                     screenProps={{services: orderedServices}}
                 />
             </SafeAreaView>
@@ -146,10 +143,12 @@ const ServicesTabRouter = TabRouter({
 });
 
 const ServicesTabs = createNavigationContainer(
-    createNavigator(ServicesTabRouter)(ServicesTabView)
+    createNavigator(ServicesTabView, ServicesTabRouter)
 );
 
 class Services extends React.Component {
+
+    static router = ServicesTabs.router;
 
     static navigationOptions = ({ navigation }) => ({
         title: 'Services',
@@ -161,7 +160,7 @@ class Services extends React.Component {
     });
 
     render() {
-        return <ServicesTabs />;
+        return <ServicesTabs navigation={this.props.navigation} />;
     }
 }
 

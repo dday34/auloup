@@ -1,12 +1,12 @@
 import React from 'react';
-import { StackNavigator } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation';
 
 import { brandColor } from './styles';
 import Login from './screens/Login';
 import Services from './screens/Services';
 import Settings from './screens/Settings';
 
-export const App = StackNavigator({
+export const App = createStackNavigator({
     Services: {
         screen: Services
     },
@@ -28,7 +28,7 @@ export const App = StackNavigator({
 });
 
 function createRootNavigator(signedIn = false) {
-    return StackNavigator({
+    return createStackNavigator({
         Login: {
             screen: Login
         },
