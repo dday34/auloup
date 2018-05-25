@@ -10,8 +10,7 @@ import {
     TabRouter,
     createNavigator,
     createNavigationContainer,
-    SafeAreaView,
-    addNavigationHelpers,
+    SafeAreaView
 } from 'react-navigation';
 import ServiceTile from '../components/ServiceTile';
 import { brandColor } from '../styles';
@@ -54,7 +53,7 @@ const styles = StyleSheet.create({
 
 function ServicesScreen({ services }) {
     return (
-        <FlatList data={services} renderItem={ServiceTile} />
+        <FlatList data={services} renderItem={({item}) => <ServiceTile item={item}></ServiceTile>} />
     );
 }
 

@@ -4,11 +4,15 @@ import { createStackNavigator } from 'react-navigation';
 import { brandColor } from './styles';
 import Login from './screens/Login';
 import Services from './screens/Services';
+import ServiceDetails from './screens/ServiceDetails';
 import Settings from './screens/Settings';
 
 export const App = createStackNavigator({
     Services: {
         screen: Services
+    },
+    ServiceDetails: {
+        screen: ServiceDetails
     },
     Settings: {
         screen: Settings

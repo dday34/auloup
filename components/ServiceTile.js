@@ -3,8 +3,12 @@ import {
     StyleSheet,
     Text,
     View,
-    FlatList
+    FlatList,
+    TouchableOpacity
 } from 'react-native';
+import {
+    withNavigation
+} from 'react-navigation';
 
 const styles = StyleSheet.create({
     service: {
@@ -40,13 +44,20 @@ function AlarmLine(alarm) {
     return <Text style={styles.alarm}>{alarm.item.metric} {operatorFormat[alarm.item.operator]} {alarm.item.threshold}</Text>
 }
 
-function ServiceTile({item}) {
-    return (
+class ServiceTile extends React.Component {
+    render() {
+        const { item, navigation } = this.props;
+        const serviceName = item.name.charAt(0).toUpperCase() + item.name.slice(1);
+
+        return (
             <View style={styles.service}>
-            <Text style={styles.serviceTitle}>{item.name.charAt(0).toUpperCase() + item.name.slice(1)}</Text>
-            <FlatList data={item.alarms.filter(a => a.state !== 'OK')} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
+                <TouchableOpacity onPress={() => navigation.navigate('ServiceDetails', {serviceName})}>
+                    <Text style={styles.serviceTitle}>{serviceName}</Text>
+                    <FlatList data={item.alarms.filter(a => a.state !== 'OK')} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
+                </TouchableOpacity>
             </View>
-    );
+        );
+    }
 }
 
-export default ServiceTile;
+export default withNavigation(ServiceTile);
