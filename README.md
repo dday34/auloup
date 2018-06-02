@@ -15,5 +15,5 @@ A mobile application that helps you monitor your services on AWS ECS.
 - [x] Save credentials securely
 - [x] Logout mechanism
 - [x] Ability to see Cloudwatch alarms linked to a service
-- [ ] See last 10 events for a given service
+- [x] See last 10 events for a given service
 - [ ] Ability to see when was the Cloudwatch alarms triggered on a service

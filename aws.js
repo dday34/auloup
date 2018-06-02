@@ -63,12 +63,13 @@ async function getECSServices(cluster) {
     if(serviceArns.length > 0) {
         const {services} = await ecs.describeServices({cluster, services: serviceArns}).promise();
 
-        return services.map(({serviceName, status, serviceArn}) => {
+        return services.map(({serviceName, status, serviceArn, events}) => {
             return {
                 key: serviceArn,
                 name: serviceName,
                 displayName: serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
-                status
+                status,
+                events
             };
         });
     }
