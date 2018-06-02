@@ -47,12 +47,11 @@ function AlarmLine(alarm) {
 class ServiceTile extends React.Component {
     render() {
         const { item, navigation } = this.props;
-        const serviceName = item.name.charAt(0).toUpperCase() + item.name.slice(1);
 
         return (
             <View style={styles.service}>
-                <TouchableOpacity onPress={() => navigation.navigate('ServiceDetails', {serviceName})}>
-                    <Text style={styles.serviceTitle}>{serviceName}</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('ServiceDetails', {service: item})}>
+                    <Text style={styles.serviceTitle}>{item.displayName}</Text>
                     <FlatList data={item.alarms.filter(a => a.state !== 'OK')} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
                 </TouchableOpacity>
             </View>
