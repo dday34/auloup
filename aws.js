@@ -63,13 +63,14 @@ async function getECSServices(cluster) {
     if(serviceArns.length > 0) {
         const {services} = await ecs.describeServices({cluster, services: serviceArns}).promise();
 
-        return services.map(({serviceName, status, serviceArn, events}) => {
+        return services.map(({serviceName, status, serviceArn, events, taskDefinition}) => {
             return {
                 key: serviceArn,
                 name: serviceName,
                 displayName: serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
                 status,
-                events
+                events,
+                taskDefinitionArn: taskDefinition
             };
         });
     }
@@ -129,6 +130,32 @@ function setState(service) {
     return 'OK';
 }
 
+async function getECSServiceTaskDefinition(taskDefinitionArn) {
+    const ecs = new AWS.ECS(config);
+
+    return await ecs.describeTaskDefinition({taskDefinition: taskDefinitionArn}).promise();
+}
+
+async function getCloudwatchLogs(group, streamPrefix) {
+    const cloudWatchLogs = new AWS.CloudWatchLogs(config);
+    const filterParams = {
+        logGroupName: group,
+        interleaved: true,
+        limit: 10
+    };
+
+    if(streamPrefix) {
+        const { logStreams } = await cloudWatchLogs.describeLogStreams({
+            logGroupName: group,
+            logStreamNamePrefix: streamPrefix
+        }).promise();
+
+        filterParams.logStreamNames = logStreams.map(l => l.logStreamName);
+    }
+
+    return await cloudWatchLogs.filterLogEvents(filterParams).promise();
+}
+
 let servicesWithAlarmsCache;
 
 async function loadECSServicesWithAlarms() {
@@ -156,10 +183,35 @@ async function getECSServicesWithAlarms() {
     return servicesWithAlarmsCache;
 }
 
+async function getCloudwatchLogsForContainer({ logConfiguration, name}) {
+    if(logConfiguration.logDriver !== 'awslogs') {
+        return {
+            name,
+            logs: null
+        };
+    }
+
+    const logsGroup = logConfiguration.options['awslogs-group'];
+    const logsStreamPrefix = logConfiguration.options['awslogs-stream-prefix'];
+    const logs = await getCloudwatchLogs(logsGroup, logsStreamPrefix);
+
+    return {
+        name,
+        logs
+    };
+}
+
+async function getCloudwatchLogsForECSService(taskDefinitionArn){
+    const { taskDefinition: {containerDefinitions} } = await getECSServiceTaskDefinition(taskDefinitionArn);
+
+    return Promise.all(containerDefinitions.map(getCloudwatchLogsForContainer));
+}
+
 module.exports = {
     regions,
     updateCredentials,
     clearCredentials,
     loadECSServicesWithAlarms,
-    getECSServicesWithAlarms
+    getECSServicesWithAlarms,
+    getCloudwatchLogsForECSService
 };

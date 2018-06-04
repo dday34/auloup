@@ -7,6 +7,7 @@ import {
     FlatList
 } from 'react-native';
 import moment from 'moment';
+import aws from '../aws';
 
 const styles = StyleSheet.create({
     serviceDetails: {
@@ -64,6 +65,31 @@ class EventList extends React.Component {
     }
 }
 
+class LogList extends React.Component {
+    render() {
+        const { container: {name, logs} } = this.props;
+
+        return (
+            <View>
+                <Text style={styles.eventListTitle}>LAST 10 LOGS FROM {name}</Text>
+                {logs ? <FlatList data={logs.events.slice(0, 10)} renderItem={EventLine} keyExtractor={(item, index) => index.toString()}/> : ''}
+            </View>
+        );
+    }
+}
+
+class LogsView extends React.Component {
+    render() {
+        const { containerLogs } = this.props;
+
+        return (
+            <View>
+                { containerLogs && containerLogs.map(container => <LogList container={container} key={container.name}></LogList>) }
+            </View>
+        );
+    }
+}
+
 class ServiceDetails extends React.Component {
 
     static navigationOptions = ({ navigation }) => {
@@ -72,8 +98,27 @@ class ServiceDetails extends React.Component {
         };
     };
 
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            containerLogs: null
+        };
+    }
+
+    componentDidMount() {
+        const { navigation } = this.props;
+        const service = navigation.getParam('service');
+
+        aws.getCloudwatchLogsForECSService(service.taskDefinitionArn)
+           .then(containerLogs => {
+               this.setState({containerLogs});
+           });
+    }
+
     render() {
         const { navigation } = this.props;
+        const { containerLogs } = this.state;
         const service = navigation.getParam('service');
 
         return (
@@ -81,6 +126,7 @@ class ServiceDetails extends React.Component {
                 <Text style={styles.status}>Status: {service.status}</Text>
                 <FlatList data={service.alarms} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
                 <EventList events={service.events}></EventList>
+                <LogsView containerLogs={containerLogs}></LogsView>
             </View>
         );
     }
