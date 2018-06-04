@@ -4,16 +4,41 @@ import {
     Text,
     Button,
     View,
-    FlatList
+    FlatList,
+    SectionList,
+    TouchableOpacity,
+    ActivityIndicator
 } from 'react-native';
+import {
+    TabRouter,
+    createNavigator,
+    createNavigationContainer,
+    SafeAreaView
+} from 'react-navigation';
 import moment from 'moment';
 import aws from '../aws';
+import globalStyles from '../styles';
 
 const styles = StyleSheet.create({
-    serviceDetails: {
-        paddingTop: 16,
-        paddingBottom: 20,
+    serviceDetailsTabView: {
+        flex: 1
+    },
+    infoScreenView: {
+        flex: 1,
+        backgroundColor: 'white',
+        paddingTop: 10,
+        paddingBottom: 10,
         paddingHorizontal: 16
+    },
+    eventsScreenView: {
+        flex: 1,
+        backgroundColor: 'white',
+        paddingTop: 10
+    },
+    logsScreenView: {
+        flex: 1,
+        backgroundColor: 'white',
+        paddingTop: 10
     },
     status: {
         fontSize: 17
@@ -23,17 +48,136 @@ const styles = StyleSheet.create({
         lineHeight: 17,
         marginTop: 10
     },
-    eventListTitle: {
+    logSectionHeader: {
+        paddingHorizontal: 16,
+        paddingBottom: 10,
+        backgroundColor: 'white',
         fontSize: 15,
-        marginTop: 15,
         color: '#828282'
     },
     event: {
-        marginTop: 10,
-        borderBottomWidth: 2,
-        borderBottomColor: '#828282'
+        marginBottom: 10,
+        marginHorizontal: 16,
+    },
+    eventDate: {
+        marginBottom: 5,
+    },
+    eventMessage: {
+        marginBottom: 10,
+    },
+    loadingPage: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: 'white',
+        paddingTop: 20
     }
 });
+
+function LogSectionHeader({section}) {
+    return (<Text style={styles.logSectionHeader}>{section.title}</Text>);
+}
+
+function LogLine(log) {
+    const logDate = moment(log.item.timestamp).format('DD/MM/YY hh:mm:ss');
+    return (
+        <View style={styles.event}>
+            <Text style={styles.eventDate}>{logDate}</Text>
+            <Text style={styles.eventMessage}>{log.item.message}</Text>
+        </View>
+    );
+}
+
+class LogsScreen extends React.Component {
+
+    _mounted: false;
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            containerLogs: null,
+            isLoading: false
+        };
+    }
+
+    componentDidMount() {
+        const { screenProps: { service: { taskDefinitionArn } } } = this.props;
+        const { isLoading } = this.state;
+
+        this._mounted = true;
+
+        this.setState({isLoading: true});
+        aws.getCloudwatchLogsForECSService(taskDefinitionArn)
+           .then(containerLogs => {
+               if(this._mounted) {
+                   this.setState({containerLogs, isLoading: false});
+               }
+           }, () => {
+               if(this._mounted) {
+                   this.setState({isLoading: false});
+               }
+           });
+
+    }
+
+    componentWillUnmount() {
+        this._mounted = false;
+    }
+
+    render() {
+        const { containerLogs, isLoading } = this.state;
+
+        if(isLoading) {
+            return (
+                <View style={styles.loadingPage}>
+                    <ActivityIndicator size="large" color={globalStyles.brandColor} />
+                </View>
+            );
+        }
+
+        if(!containerLogs) {
+            return (<View></View>)
+        }
+
+        const sections = containerLogs.map(c => ({
+            title: c.name,
+            data: c.logs.events
+        }));
+
+        return (
+            <View style={styles.logsScreenView}>
+                <SectionList
+                    sections={sections}
+                    renderItem={LogLine}
+                    renderSectionHeader={LogSectionHeader}
+                    keyExtractor={(item, index) => index}
+                ></SectionList>
+            </View>
+        );
+    }
+}
+
+function EventLine(event) {
+    const eventDate = moment(event.item.createdAt).format('DD/MM/YY hh:mm:ss');
+    return (
+        <View style={styles.event}>
+            <Text style={styles.eventDate}>{eventDate}</Text>
+            <Text style={styles.eventMessage}>{event.item.message}</Text>
+        </View>
+    );
+}
+
+class EventsScreen extends React.Component {
+    render() {
+        const { screenProps: { service: { events } } } = this.props;
+
+        return (
+            <View style={styles.eventsScreenView}>
+                <FlatList data={events.slice(0, 20)} renderItem={EventLine} keyExtractor={(item, index) => index.toString()}/>
+            </View>
+        );
+    }
+}
 
 function AlarmLine(alarm) {
     const operatorFormat = {
@@ -47,50 +191,90 @@ function AlarmLine(alarm) {
     return <Text style={[styles.alarm, {color}]}>{alarm.item.metric} {operatorFormat[alarm.item.operator]} {alarm.item.threshold} {alarm.item.state}</Text>;
 }
 
-function EventLine(event) {
-    const eventDate = moment(event.item.createdAt).format('DD/MM hh:mm');
-    return <Text style={styles.event}>{eventDate} {event.item.message}</Text>;
-}
-
-class EventList extends React.Component {
+class InfoScreen extends React.Component {
     render() {
-        const { events } = this.props;
+        const { screenProps: { service } } = this.props;
 
         return (
-            <View>
-                <Text style={styles.eventListTitle}>LAST 5 EVENTS</Text>
-                <FlatList data={events.slice(0, 5)} renderItem={EventLine} keyExtractor={(item, index) => index.toString()}/>
+            <View style={styles.infoScreenView}>
+                <Text style={styles.status}>Status: {service.status}</Text>
+                <FlatList data={service.alarms} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
             </View>
+
+        );
+    }
+};
+
+function ServiceDetailsTabBar({ navigation }) {
+    const { routes, index: activeTabIndex } = navigation.state;
+
+    return (
+        <SafeAreaView style={globalStyles.tabBar}>
+            {routes.map((route, index) => (
+                <TouchableOpacity
+                    onPress={() => navigation.navigate(route.routeName)}
+                    key={route.routeName}
+                    style={[globalStyles.tab, index === activeTabIndex && globalStyles.activeTab]}
+                    >
+                    <Text style={globalStyles.tabText}>{route.routeName.toUpperCase()}</Text>
+                </TouchableOpacity>
+            ))}
+        </SafeAreaView>
+    );
+}
+
+class ServiceDetailsTabView extends React.Component {
+
+    constructor(props) {
+        super(props);
+    }
+
+    componentDidMount() {
+    }
+
+    render() {
+        const { navigation, descriptors } = this.props;
+        const { routes, index } = navigation.state;
+        const service = navigation.getParam('service');
+
+        const ActiveScreen = descriptors[routes[index].routeName].getComponent();
+
+        return (
+            <SafeAreaView style={styles.serviceDetailsTabView}>
+                <ServiceDetailsTabBar navigation={navigation} />
+                <ActiveScreen
+                    screenProps={{service}}
+                />
+            </SafeAreaView>
         );
     }
 }
 
-class LogList extends React.Component {
-    render() {
-        const { container: {name, logs} } = this.props;
-
-        return (
-            <View>
-                <Text style={styles.eventListTitle}>LAST 10 LOGS FROM {name}</Text>
-                {logs ? <FlatList data={logs.events.slice(0, 10)} renderItem={EventLine} keyExtractor={(item, index) => index.toString()}/> : ''}
-            </View>
-        );
+const ServiceDetailsTabRouter = TabRouter({
+    Info: {
+        screen: InfoScreen,
+        path: 'info'
+    },
+    Events: {
+        screen: EventsScreen,
+        path: 'events'
+    },
+    Logs: {
+        screen: LogsScreen,
+        path: 'logs'
     }
-}
+}, {
+    initialRouteName: 'Info',
+    animationEnabled: true
+});
 
-class LogsView extends React.Component {
-    render() {
-        const { containerLogs } = this.props;
-
-        return (
-            <View>
-                { containerLogs && containerLogs.map(container => <LogList container={container} key={container.name}></LogList>) }
-            </View>
-        );
-    }
-}
+const ServiceDetailsTabs = createNavigationContainer(
+    createNavigator(ServiceDetailsTabView, ServiceDetailsTabRouter)
+);
 
 class ServiceDetails extends React.Component {
+
+    static router = ServiceDetailsTabs.router;
 
     static navigationOptions = ({ navigation }) => {
         return {
@@ -98,37 +282,10 @@ class ServiceDetails extends React.Component {
         };
     };
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            containerLogs: null
-        };
-    }
-
-    componentDidMount() {
-        const { navigation } = this.props;
-        const service = navigation.getParam('service');
-
-        aws.getCloudwatchLogsForECSService(service.taskDefinitionArn)
-           .then(containerLogs => {
-               this.setState({containerLogs});
-           });
-    }
-
     render() {
         const { navigation } = this.props;
-        const { containerLogs } = this.state;
-        const service = navigation.getParam('service');
 
-        return (
-            <View style={styles.serviceDetails}>
-                <Text style={styles.status}>Status: {service.status}</Text>
-                <FlatList data={service.alarms} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
-                <EventList events={service.events}></EventList>
-                <LogsView containerLogs={containerLogs}></LogsView>
-            </View>
-        );
+        return <ServiceDetailsTabs navigation={navigation} />;
     }
 }
 

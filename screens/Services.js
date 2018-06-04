@@ -13,7 +13,7 @@ import {
     SafeAreaView
 } from 'react-navigation';
 import ServiceTile from '../components/ServiceTile';
-import { brandColor } from '../styles';
+import globalStyles from '../styles';
 import aws from '../aws';
 
 const styles = StyleSheet.create({
@@ -24,30 +24,6 @@ const styles = StyleSheet.create({
     },
     servicesTabView: {
         flex: 1
-    },
-    tabBar: {
-        flexDirection: 'row',
-        height: 48,
-        shadowColor: 'black',
-        shadowOffset: {width: 0, height: 1},
-        shadowOpacity: 0.17,
-        shadowRadius: 2,
-        zIndex: 1
-    },
-    tab: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: brandColor
-    },
-    activeTab: {
-        borderBottomWidth: 3,
-        borderBottomColor: 'white'
-    },
-    tabText: {
-        color: 'white',
-        fontSize: 14,
-        letterSpacing: 1
     }
 });
 
@@ -73,14 +49,14 @@ function ServicesTabBar({ navigation }) {
     const { routes, index: activeTabIndex } = navigation.state;
 
     return (
-        <SafeAreaView style={styles.tabBar}>
+        <SafeAreaView style={globalStyles.tabBar}>
             {routes.map((route, index) => (
                 <TouchableOpacity
                     onPress={() => navigation.navigate(route.routeName)}
                     key={route.routeName}
-                    style={[styles.tab, index === activeTabIndex && styles.activeTab]}
+                    style={[globalStyles.tab, index === activeTabIndex && globalStyles.activeTab]}
                     >
-                    <Text style={styles.tabText}>{route.routeName.toUpperCase()}</Text>
+                    <Text style={globalStyles.tabText}>{route.routeName.toUpperCase()}</Text>
                 </TouchableOpacity>
             ))}
         </SafeAreaView>
