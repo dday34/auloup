@@ -1,4 +1,5 @@
 import React from 'react';
+import {observer} from 'mobx-react';
 import {
     StyleSheet,
     Text,
@@ -12,6 +13,7 @@ import {
     createNavigationContainer,
     SafeAreaView
 } from 'react-navigation';
+
 import ServiceTile from '../components/ServiceTile';
 import globalStyles from '../styles';
 import aws from '../aws';
@@ -34,15 +36,15 @@ function ServicesScreen({ services }) {
 }
 
 function UnhealthyScreen({ screenProps }) {
-    const unhealthyServices = screenProps.services.filter(s => s.state !== 'OK');
-
-    return ServicesScreen( { services: unhealthyServices } );
+    return ServicesScreen( {
+        services: screenProps.servicesStore.unhealthyServices()
+    } );
 }
 
 function HealthyScreen({ screenProps }) {
-    const healthyServices = screenProps.services.filter(s => s.state === 'OK');
-
-    return ServicesScreen( { services: healthyServices } );
+    return ServicesScreen( {
+        services: screenProps.servicesStore.healthyServices()
+    } );
 }
 
 function ServicesTabBar({ navigation }) {
@@ -63,41 +65,29 @@ function ServicesTabBar({ navigation }) {
     );
 }
 
-function byName(service1, service2) {
-    if(service1.name < service2.name) return -1;
-    if(service1.name > service2.name) return 1;
-
-    return 0;
-}
-
 class ServicesTabView extends React.Component {
 
     constructor(props) {
         super(props);
-
-        this.state = {
-            services: []
-        };
     }
 
     componentDidMount() {
-        aws.getECSServicesWithAlarms()
-           .then(services => this.setState({services}));
+        const servicesStore = this.props.navigation.getParam('servicesStore');
+
+        servicesStore.fetchServices();
     }
 
     render() {
         const { navigation, descriptors } = this.props;
+        const servicesStore = navigation.getParam('servicesStore');
         const { routes, index } = navigation.state;
 
         const ActiveScreen = descriptors[routes[index].routeName].getComponent();
-        const orderedServices = this.state.services.sort(byName);
 
         return (
             <SafeAreaView style={styles.servicesTabView}>
                 <ServicesTabBar navigation={navigation} />
-                <ActiveScreen
-                    screenProps={{services: orderedServices}}
-                />
+                <ActiveScreen screenProps={{servicesStore}} />
             </SafeAreaView>
         );
     }

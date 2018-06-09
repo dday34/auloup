@@ -2,12 +2,13 @@ import React from 'react';
 import { createStackNavigator } from 'react-navigation';
 
 import { brandColor } from './styles';
+import servicesStore from './mobx/servicesStore';
 import Login from './screens/Login';
 import Services from './screens/Services';
 import ServiceDetails from './screens/ServiceDetails';
 import Settings from './screens/Settings';
 
-export const App = createStackNavigator({
+export const Main = createStackNavigator({
     Services: {
         screen: Services
     },
@@ -19,6 +20,7 @@ export const App = createStackNavigator({
     }
 }, {
     initialRouteName: 'Services',
+    initialRouteParams: {servicesStore},
     navigationOptions: {
         headerTintColor: 'white',
         headerStyle: {
@@ -36,12 +38,12 @@ function createRootNavigator(signedIn = false) {
         Login: {
             screen: Login
         },
-        App: {
-            screen: App
+        Main: {
+            screen: Main
         }
     }, {
         headerMode: 'none',
-        initialRouteName: signedIn ? 'App' : 'Login'
+        initialRouteName: signedIn ? 'Main' : 'Login'
     });
 }
 
