@@ -7,7 +7,8 @@ import {
     FlatList,
     SectionList,
     TouchableOpacity,
-    ActivityIndicator
+    ActivityIndicator,
+    RefreshControl
 } from 'react-native';
 import {
     TabRouter,
@@ -96,36 +97,49 @@ class LogsScreen extends React.Component {
 
         this.state = {
             containerLogs: null,
-            isLoading: false
+            isLoading: false,
+            isRefreshing: false
         };
     }
 
-    componentDidMount() {
+    loadLogs(isRefreshing) {
         const { screenProps: { service: { taskDefinitionArn } } } = this.props;
         const { isLoading } = this.state;
 
-        this._mounted = true;
-
-        this.setState({isLoading: true});
+        this.setState({isLoading: !isRefreshing, isRefreshing});
         aws.getCloudwatchLogsForECSService(taskDefinitionArn)
            .then(containerLogs => {
                if(this._mounted) {
-                   this.setState({containerLogs, isLoading: false});
+                   this.setState({ containerLogs });
                }
-           }, () => {
+           })
+           .finally(() => {
                if(this._mounted) {
-                   this.setState({isLoading: false});
+                   this.setState({
+                       isLoading: false,
+                       isRefreshing: false
+                   });
                }
            });
 
+    }
+
+    componentDidMount() {
+        this._mounted = true;
+
+        this.loadLogs();
     }
 
     componentWillUnmount() {
         this._mounted = false;
     }
 
+    _onRefresh() {
+        this.loadLogs(true);
+    }
+
     render() {
-        const { containerLogs, isLoading } = this.state;
+        const { containerLogs, isLoading, isRefreshing } = this.state;
 
         if(isLoading) {
             return (
@@ -151,6 +165,12 @@ class LogsScreen extends React.Component {
                     renderItem={LogLine}
                     renderSectionHeader={LogSectionHeader}
                     keyExtractor={(item, index) => index}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={isRefreshing}
+                            onRefresh={this._onRefresh.bind(this)}
+                        />
+                    }
                 ></SectionList>
             </View>
         );
