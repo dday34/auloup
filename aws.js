@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk/dist/aws-sdk-react-native';
+import moment from 'moment';
 
 const config = new AWS.Config();
 const regions = [
@@ -136,12 +137,19 @@ async function getECSServiceTaskDefinition(taskDefinitionArn) {
     return await ecs.describeTaskDefinition({taskDefinition: taskDefinitionArn}).promise();
 }
 
+const byTimestampDesc = (event1, event2) => {
+    if(event1.timestamp > event2.timestamp) return -1;
+    if(event1.timestamp < event2.timestamp) return 1;
+
+    return 0;
+};
+
 async function getCloudwatchLogs(group, streamPrefix) {
     const cloudWatchLogs = new AWS.CloudWatchLogs(config);
     const filterParams = {
         logGroupName: group,
         interleaved: true,
-        limit: 10
+        limit: 100
     };
 
     if(streamPrefix) {
@@ -153,7 +161,22 @@ async function getCloudwatchLogs(group, streamPrefix) {
         filterParams.logStreamNames = logStreams.map(l => l.logStreamName);
     }
 
-    return await cloudWatchLogs.filterLogEvents(filterParams).promise();
+    const currentTime = moment().valueOf();
+    let logs;
+    let time = 30;
+
+    while((!logs || logs.events.length === 0) && time <= 300) {
+        filterParams.startTime = moment(currentTime).subtract(30, 'seconds').valueOf();
+        filterParams.endTime = currentTime;
+        logs = await cloudWatchLogs.filterLogEvents(filterParams).promise();
+        logs.startTime = filterParams.startTime;
+        logs.endTime = filterParams.endTime;
+        time = time + 30;
+    }
+
+    logs.events = logs.events.sort(byTimestampDesc);
+
+    return logs;
 }
 
 let servicesWithAlarmsCache;
