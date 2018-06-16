@@ -96,53 +96,24 @@ function LogLine(log) {
 @observer
 class LogsScreen extends React.Component {
 
-    _mounted: false;
-
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            isLoading: false,
-            isRefreshing: false
-        };
-    }
-
-    loadLogs(isRefreshing) {
+    loadLogs() {
         const { screenProps: { service }, servicesStore } = this.props;
-        const { isLoading } = this.state;
 
-        this.setState({isLoading: !isRefreshing, isRefreshing});
-
-        servicesStore.fetchServiceLogs(service)
-           .finally(() => {
-               if(this._mounted) {
-                   this.setState({
-                       isLoading: false,
-                       isRefreshing: false
-                   });
-               }
-           });
+        servicesStore.fetchServiceLogs(service);
     }
 
     componentDidMount() {
-        this._mounted = true;
-
         this.loadLogs();
     }
 
-    componentWillUnmount() {
-        this._mounted = false;
-    }
-
     _onRefresh() {
-        this.loadLogs(true);
+        this.loadLogs();
     }
 
     render() {
-        const { isLoading, isRefreshing } = this.state;
         const { screenProps: { service } } = this.props;
 
-        if(isLoading) {
+        if(service.isLoading && !service.isRefreshing) {
             return (
                 <View style={styles.loadingPage}>
                     <ActivityIndicator size="large" color={globalStyles.brandColor} />
@@ -168,7 +139,7 @@ class LogsScreen extends React.Component {
                     keyExtractor={(item, index) => index}
                     refreshControl={
                         <RefreshControl
-                            refreshing={isRefreshing}
+                            refreshing={service.isRefreshing}
                             onRefresh={this._onRefresh.bind(this)}
                         />
                     }

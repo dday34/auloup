@@ -30,8 +30,12 @@ class Store {
     }
 
     fetchServiceLogs = flow(function * (service) {
+        service.isLoading = true;
+        service.isRefreshing = !!service.logs;
         const logs = yield aws.getCloudwatchLogsForECSService(service.taskDefinitionArn);
         service.logs = logs;
+        service.isLoading = false;
+        service.isRefreshing = false;
     })
 }
 
