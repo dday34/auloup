@@ -1,3 +1,5 @@
+'use strict';
+
 import AWS from 'aws-sdk/dist/aws-sdk-react-native';
 import moment from 'moment';
 
@@ -57,12 +59,20 @@ function updateCredentials(accessKey, secretKey, region) {
     config.update({accessKeyId: accessKey, secretAccessKey: secretKey, region});
 }
 
-async function getECSServices(cluster) {
+async function getECSServices(cluster, previousToken) {
     const ecs = new AWS.ECS(config);
-    const {serviceArns} = await ecs.listServices({cluster}).promise();
+    const params = {cluster};
+
+    if(previousToken) {
+        params.nextToken = previousToken;
+    }
+
+    const {serviceArns, nextToken} = await ecs.listServices(params).promise();
+    const services = [];
 
     if(serviceArns.length > 0) {
         const {services} = await ecs.describeServices({cluster, services: serviceArns}).promise();
+        const otherServices = nextToken ? await getECSServices(cluster, nextToken) : [];
 
         return services.map(({serviceName, status, serviceArn, events, taskDefinition}) => {
             return {
@@ -73,7 +83,7 @@ async function getECSServices(cluster) {
                 events,
                 taskDefinitionArn: taskDefinition
             };
-        });
+        }).concat(otherServices);
     }
 
     return [];
@@ -82,7 +92,7 @@ async function getECSServices(cluster) {
 async function getAllECSServices() {
     const ecs = new AWS.ECS(config);
     const {clusterArns} = await ecs.listClusters().promise();
-    const services = await Promise.all(clusterArns.map(getECSServices));
+    const services = await Promise.all(clusterArns.map(c => getECSServices(c)));
 
     return [].concat.apply([], services);
 }
