@@ -1,3 +1,5 @@
+'use strict';
+
 import {configure, observable, flow } from 'mobx';
 import aws from '../aws';
 
@@ -26,6 +28,11 @@ class Store {
     unhealthyServices = function() {
         return this.services.filter(s => s.state !== 'OK');
     }
+
+    fetchServiceLogs = flow(function * (service) {
+        const logs = yield aws.getCloudwatchLogsForECSService(service.taskDefinitionArn);
+        service.logs = logs;
+    })
 }
 
 export default new Store;

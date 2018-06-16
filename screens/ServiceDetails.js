@@ -1,3 +1,5 @@
+'use strict';
+
 import React from 'react';
 import {
     StyleSheet,
@@ -16,9 +18,11 @@ import {
     createNavigationContainer,
     SafeAreaView
 } from 'react-navigation';
+import { Provider, inject, observer } from 'mobx-react';
 import moment from 'moment';
 import aws from '../aws';
 import globalStyles from '../styles';
+import servicesStore from '../mobx/servicesStore';
 
 const styles = StyleSheet.create({
     serviceDetailsTabView: {
@@ -88,6 +92,8 @@ function LogLine(log) {
     );
 }
 
+@inject('servicesStore')
+@observer
 class LogsScreen extends React.Component {
 
     _mounted: false;
@@ -96,23 +102,18 @@ class LogsScreen extends React.Component {
         super(props);
 
         this.state = {
-            containerLogs: null,
             isLoading: false,
             isRefreshing: false
         };
     }
 
     loadLogs(isRefreshing) {
-        const { screenProps: { service: { taskDefinitionArn } } } = this.props;
+        const { screenProps: { service }, servicesStore } = this.props;
         const { isLoading } = this.state;
 
         this.setState({isLoading: !isRefreshing, isRefreshing});
-        aws.getCloudwatchLogsForECSService(taskDefinitionArn)
-           .then(containerLogs => {
-               if(this._mounted) {
-                   this.setState({ containerLogs });
-               }
-           })
+
+        servicesStore.fetchServiceLogs(service)
            .finally(() => {
                if(this._mounted) {
                    this.setState({
@@ -121,7 +122,6 @@ class LogsScreen extends React.Component {
                    });
                }
            });
-
     }
 
     componentDidMount() {
@@ -139,7 +139,8 @@ class LogsScreen extends React.Component {
     }
 
     render() {
-        const { containerLogs, isLoading, isRefreshing } = this.state;
+        const { isLoading, isRefreshing } = this.state;
+        const { screenProps: { service } } = this.props;
 
         if(isLoading) {
             return (
@@ -149,11 +150,11 @@ class LogsScreen extends React.Component {
             );
         }
 
-        if(!containerLogs) {
+        if(!service.logs) {
             return (<View></View>)
         }
 
-        const sections = containerLogs.map(c => ({
+        const sections = service.logs.map(c => ({
             title: c.name,
             data: c.logs.events
         }));
@@ -262,9 +263,11 @@ class ServiceDetailsTabView extends React.Component {
         return (
             <SafeAreaView style={styles.serviceDetailsTabView}>
                 <ServiceDetailsTabBar navigation={navigation} />
-                <ActiveScreen
-                    screenProps={{service}}
-                />
+                <Provider servicesStore={servicesStore}>
+                    <ActiveScreen
+                        screenProps={{service}}
+                    />
+                </Provider>
             </SafeAreaView>
         );
     }
@@ -305,7 +308,9 @@ class ServiceDetails extends React.Component {
     render() {
         const { navigation } = this.props;
 
-        return <ServiceDetailsTabs navigation={navigation} />;
+        return (
+            <ServiceDetailsTabs navigation={navigation} />
+        );
     }
 }
 
