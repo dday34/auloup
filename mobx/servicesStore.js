@@ -35,6 +35,13 @@ class Store {
         service.isLoading = false;
         service.isRefreshing = false;
     })
+
+    fetchServiceEvents = flow(function * (service) {
+        service.isRefreshing = true;
+        const services = yield aws.getServices(service.cluster, [service.key]);
+        service.events = services[0].events;
+        service.isRefreshing = false;
+    })
 }
 
 export default new Store;

@@ -57,7 +57,24 @@ function updateCredentials(accessKey, secretKey, region) {
     config.update({accessKeyId: accessKey, secretAccessKey: secretKey, region});
 }
 
-async function getECSServices(cluster) {
+async function getServices(cluster, serviceArns) {
+    const ecs = new AWS.ECS(config);
+    const {services} = await ecs.describeServices({cluster, services: serviceArns}).promise();
+
+    return services.map(({serviceName, status, serviceArn, events, taskDefinition}) => {
+        return {
+            key: serviceArn,
+            name: serviceName,
+            displayName: serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
+            status,
+            events,
+            taskDefinitionArn: taskDefinition,
+            cluster
+        };
+    });
+}
+
+async function getClusterServices(cluster) {
     const ecs = new AWS.ECS(config);
     const params = {cluster};
     let allServices = [];
@@ -72,18 +89,9 @@ async function getECSServices(cluster) {
         token = nextToken;
 
         if(serviceArns.length > 0) {
-            const {services} = await ecs.describeServices({cluster, services: serviceArns}).promise();
+            const services = await getServices(cluster, serviceArns);
 
-            allServices = allServices.concat(services.map(({serviceName, status, serviceArn, events, taskDefinition}) => {
-                return {
-                    key: serviceArn,
-                    name: serviceName,
-                    displayName: serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
-                    status,
-                    events,
-                    taskDefinitionArn: taskDefinition
-                };
-            }));
+            allServices = allServices.concat(services);
         }
 
     } while(token);
@@ -91,10 +99,10 @@ async function getECSServices(cluster) {
     return allServices;
 }
 
-async function getAllECSServices() {
+async function getAllServices() {
     const ecs = new AWS.ECS(config);
     const {clusterArns} = await ecs.listClusters().promise();
-    const services = await Promise.all(clusterArns.map(c => getECSServices(c)));
+    const services = await Promise.all(clusterArns.map(c => getClusterServices(c)));
 
     return [].concat.apply([], services);
 }
@@ -194,7 +202,7 @@ async function getCloudwatchLogs(group, streamPrefix) {
 let servicesWithAlarmsCache;
 
 async function loadECSServicesWithAlarms() {
-    const services = await getAllECSServices();
+    const services = await getAllServices();
     const alarms = await getECSServicesAlarms();
 
     const servicesWithAlarms = services.map(s => {
@@ -246,6 +254,7 @@ module.exports = {
     regions,
     updateCredentials,
     clearCredentials,
+    getServices,
     loadECSServicesWithAlarms,
     getECSServicesWithAlarms,
     getCloudwatchLogsForECSService

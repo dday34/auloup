@@ -104,10 +104,6 @@ class LogsScreen extends React.Component {
         this.loadLogs();
     }
 
-    _onRefresh() {
-        this.loadLogs();
-    }
-
     render() {
         const { screenProps: { service } } = this.props;
 
@@ -138,7 +134,7 @@ class LogsScreen extends React.Component {
                     refreshControl={
                         <RefreshControl
                             refreshing={service.isRefreshing}
-                            onRefresh={this._onRefresh.bind(this)}
+                            onRefresh={this.loadLogs.bind(this)}
                         />
                     }
                 ></SectionList>
@@ -157,13 +153,36 @@ function EventLine(event) {
     );
 }
 
+@inject('servicesStore')
+@observer
 class EventsScreen extends React.Component {
+
+    loadEvents() {
+        const { screenProps: { service }, servicesStore } = this.props;
+
+        servicesStore.fetchServiceEvents(service);
+    }
+
+    componentDidMount() {
+        this.loadEvents();
+    }
+
     render() {
-        const { screenProps: { service: { events } } } = this.props;
+        const { screenProps: { service } } = this.props;
 
         return (
             <View style={styles.eventsScreenView}>
-                <FlatList data={events.slice(0, 20)} renderItem={EventLine} keyExtractor={(item, index) => index.toString()}/>
+                <FlatList
+                    data={service.events.slice(0, 20)}
+                    renderItem={EventLine}
+                    keyExtractor={(item, index) => index.toString()}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={service.isRefreshing || false}
+                            onRefresh={this.loadEvents.bind(this)}
+                        />
+                    }
+                />
             </View>
         );
     }
