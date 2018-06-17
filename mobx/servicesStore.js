@@ -1,5 +1,3 @@
-'use strict';
-
 import {configure, observable, flow } from 'mobx';
 import aws from '../aws';
 

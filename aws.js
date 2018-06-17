@@ -1,5 +1,3 @@
-'use strict';
-
 import AWS from 'aws-sdk/dist/aws-sdk-react-native';
 import moment from 'moment';
 
@@ -59,34 +57,38 @@ function updateCredentials(accessKey, secretKey, region) {
     config.update({accessKeyId: accessKey, secretAccessKey: secretKey, region});
 }
 
-async function getECSServices(cluster, previousToken) {
+async function getECSServices(cluster) {
     const ecs = new AWS.ECS(config);
     const params = {cluster};
+    let allServices = [];
+    let token;
 
-    if(previousToken) {
-        params.nextToken = previousToken;
-    }
+    do {
+        if(token) {
+            params.nextToken = token;
+        }
 
-    const {serviceArns, nextToken} = await ecs.listServices(params).promise();
-    const services = [];
+        const {serviceArns, nextToken} = await ecs.listServices(params).promise();
+        token = nextToken;
 
-    if(serviceArns.length > 0) {
-        const {services} = await ecs.describeServices({cluster, services: serviceArns}).promise();
-        const otherServices = nextToken ? await getECSServices(cluster, nextToken) : [];
+        if(serviceArns.length > 0) {
+            const {services} = await ecs.describeServices({cluster, services: serviceArns}).promise();
 
-        return services.map(({serviceName, status, serviceArn, events, taskDefinition}) => {
-            return {
-                key: serviceArn,
-                name: serviceName,
-                displayName: serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
-                status,
-                events,
-                taskDefinitionArn: taskDefinition
-            };
-        }).concat(otherServices);
-    }
+            allServices = allServices.concat(services.map(({serviceName, status, serviceArn, events, taskDefinition}) => {
+                return {
+                    key: serviceArn,
+                    name: serviceName,
+                    displayName: serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
+                    status,
+                    events,
+                    taskDefinitionArn: taskDefinition
+                };
+            }));
+        }
 
-    return [];
+    } while(token);
+
+    return allServices;
 }
 
 async function getAllECSServices() {
