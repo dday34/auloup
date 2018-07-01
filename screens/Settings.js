@@ -6,7 +6,7 @@ import {
 import auth from '../auth';
 
 function logout(navigation) {
-    auth.logout();
+    auth.clearCredentials();
     navigation.navigate('Login');
 }
 

@@ -201,29 +201,16 @@ async function getCloudwatchLogs(group, streamPrefix) {
 
 let servicesWithAlarmsCache;
 
-async function loadECSServicesWithAlarms() {
+async function getECSServicesWithAlarms() {
     const services = await getAllServices();
     const alarms = await getECSServicesAlarms();
 
-    const servicesWithAlarms = services.map(s => {
+    return services.map(s => {
         s.alarms = alarms.filter(a => a.service === s.name);
         s.state = setState(s);
 
         return s;
     });
-
-    servicesWithAlarmsCache = servicesWithAlarms;
-
-    return servicesWithAlarmsCache;
-}
-
-async function getECSServicesWithAlarms() {
-
-    if(!servicesWithAlarmsCache) {
-        return loadECSServicesWithAlarms();
-    }
-
-    return servicesWithAlarmsCache;
 }
 
 async function getCloudwatchLogsForContainer({ logConfiguration, name}) {
@@ -255,7 +242,6 @@ module.exports = {
     updateCredentials,
     clearCredentials,
     getServices,
-    loadECSServicesWithAlarms,
     getECSServicesWithAlarms,
     getCloudwatchLogsForECSService
 };

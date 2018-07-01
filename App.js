@@ -7,6 +7,7 @@ import {
 import auth from './auth';
 import { createRootNavigator } from './router';
 import { brandColor } from './styles';
+import servicesStore from './mobx/servicesStore';
 
 const styles = StyleSheet.create({
     loadingPage: {
@@ -29,9 +30,26 @@ export default class App extends React.Component {
     }
 
     componentDidMount() {
-        auth.isLoggedIn()
-            .then(res => {
-                this.setState({isAuthenticated: res, checkedAuthentication: true})
+        auth.loadCredentialsFromStore()
+            .then(credentials => {
+                if(credentials) {
+                    return servicesStore.fetchServices().then(() => {
+                        this.setState({
+                            isAuthenticated: true,
+                            checkedAuthentication: true
+                        });
+                    }, error => {
+                        this.setState({
+                            isAuthenticated: false,
+                            checkedAuthentication: true
+                        });
+                    });
+                }
+
+                this.setState({
+                    isAuthenticated: false,
+                    checkedAuthentication: true
+                });
             });
     }
 

@@ -75,10 +75,11 @@ export default class Login extends React.Component {
     onLogin() {
         const {accessKey, secretKey, region} = this.state;
         const { navigation } = this.props;
+        const servicesStore = navigation.getParam('servicesStore');
 
         this.setState({isLoading: true});
 
-        auth.login(accessKey, secretKey, region)
+        auth.saveCredentials(accessKey, secretKey, region)
             .then(() => {
                 this.setState({isLoading: false});
 

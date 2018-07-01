@@ -71,12 +71,6 @@ class ServicesTabView extends React.Component {
         super(props);
     }
 
-    componentDidMount() {
-        const servicesStore = this.props.navigation.getParam('servicesStore');
-
-        servicesStore.fetchServices();
-    }
-
     render() {
         const { navigation, descriptors } = this.props;
         const servicesStore = navigation.getParam('servicesStore');

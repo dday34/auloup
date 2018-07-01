@@ -43,7 +43,8 @@ function createRootNavigator(signedIn = false) {
         }
     }, {
         headerMode: 'none',
-        initialRouteName: signedIn ? 'Main' : 'Login'
+        initialRouteName: signedIn ? 'Main' : 'Login',
+        initialRouteParams: {servicesStore}
     });
 }
 
