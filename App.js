@@ -4,6 +4,7 @@ import {
     ActivityIndicator,
     StyleSheet
 } from 'react-native';
+import { Provider } from 'mobx-react';
 import auth from './auth';
 import { createRootNavigator } from './router';
 import { brandColor } from './styles';
@@ -66,6 +67,10 @@ export default class App extends React.Component {
 
         const Layout = createRootNavigator(isAuthenticated);
 
-        return <Layout />;
+        return (
+            <Provider servicesStore={servicesStore}>
+                <Layout />
+            </Provider>
+        );
     }
 }

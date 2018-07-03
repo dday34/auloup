@@ -16,11 +16,10 @@ import {
     createNavigationContainer,
     SafeAreaView
 } from 'react-navigation';
-import { Provider, inject, observer } from 'mobx-react';
+import { inject, observer } from 'mobx-react';
 import moment from 'moment';
 import aws from '../aws';
 import globalStyles from '../styles';
-import servicesStore from '../mobx/servicesStore';
 
 const styles = StyleSheet.create({
     serviceDetailsTabView: {
@@ -251,11 +250,9 @@ class ServiceDetailsTabView extends React.Component {
         return (
             <SafeAreaView style={styles.serviceDetailsTabView}>
                 <ServiceDetailsTabBar navigation={navigation} />
-                <Provider servicesStore={servicesStore}>
-                    <ActiveScreen
-                        screenProps={{service}}
-                    />
-                </Provider>
+                <ActiveScreen
+                    screenProps={{service}}
+                />
             </SafeAreaView>
         );
     }

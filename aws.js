@@ -136,21 +136,6 @@ async function getECSServicesAlarms(token) {
     return ecsAlarms;
 }
 
-function setState(service) {
-    const alarm = service.alarms.find(a => a.state === 'ALARM');
-    const insuficientData = service.alarms.find(a => a.state === 'INSUFFICIENT_DATA');
-
-    if(alarm) {
-        return 'ALARM';
-    }
-
-    if(insuficientData) {
-        return 'INSUFFICIENT_DATA';
-    }
-
-    return 'OK';
-}
-
 async function getECSServiceTaskDefinition(taskDefinitionArn) {
     const ecs = new AWS.ECS(config);
 
@@ -200,6 +185,21 @@ async function getCloudwatchLogs(group, streamPrefix) {
 }
 
 let servicesWithAlarmsCache;
+
+function setState(service) {
+    const alarm = service.alarms.find(a => a.state === 'ALARM');
+    const insuficientData = service.alarms.find(a => a.state === 'INSUFFICIENT_DATA');
+
+    if(alarm) {
+        return 'ALARM';
+    }
+
+    if(insuficientData) {
+        return 'INSUFFICIENT_DATA';
+    }
+
+    return 'OK';
+}
 
 async function getECSServicesWithAlarms() {
     const services = await getAllServices();
