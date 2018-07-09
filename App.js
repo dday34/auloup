@@ -25,39 +25,26 @@ export default class App extends React.Component {
         super(props);
 
         this.state = {
-            isAuthenticated: false,
-            checkedAuthentication: false
+            isLoading: true
         };
     }
 
     componentDidMount() {
-        auth.loadCredentialsFromStore()
-            .then(credentials => {
-                if(credentials) {
-                    return servicesStore.fetchServices().then(() => {
-                        this.setState({
-                            isAuthenticated: true,
-                            checkedAuthentication: true
-                        });
-                    }, error => {
-                        this.setState({
-                            isAuthenticated: false,
-                            checkedAuthentication: true
-                        });
-                    });
-                }
-
-                this.setState({
-                    isAuthenticated: false,
-                    checkedAuthentication: true
-                });
+        servicesStore.loadCredentials().then(credentials => {
+            if(credentials) {
+                return servicesStore.fetchServices();
+            }
+        }).finally(() => {
+            this.setState({
+                isLoading: false
             });
+        });
     }
 
     render() {
-       const {isAuthenticated, checkedAuthentication} = this.state;
+       const {isLoading} = this.state;
 
-        if(!checkedAuthentication) {
+        if(isLoading) {
             return (
                 <View style={styles.loadingPage}>
                     <ActivityIndicator size="large" color="white"  />
@@ -65,7 +52,7 @@ export default class App extends React.Component {
             );
         }
 
-        const Layout = createRootNavigator(isAuthenticated);
+        const Layout = createRootNavigator(servicesStore.isAuthenticated);
 
         return (
             <Provider servicesStore={servicesStore}>

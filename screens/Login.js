@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import aws from '../aws';
 import auth from '../auth';
+import { inject, observer } from 'mobx-react';
 import { brandColor } from '../styles';
 
 const styles = StyleSheet.create({
@@ -58,6 +59,8 @@ const styles = StyleSheet.create({
     }
 });
 
+@inject('servicesStore')
+@observer
 export default class Login extends React.Component {
 
     constructor(props) {
@@ -67,30 +70,30 @@ export default class Login extends React.Component {
             accessKey: '',
             secretKey: '',
             region: aws.regions[0].value,
-            error: '',
-            isLoading: false
+            isLoading: false,
+            error: null
         };
     }
 
     onLogin() {
         const {accessKey, secretKey, region} = this.state;
-        const { navigation } = this.props;
-        const servicesStore = navigation.getParam('servicesStore');
+        const { servicesStore, navigation } = this.props;
 
         this.setState({isLoading: true});
 
-        auth.saveCredentials(accessKey, secretKey, region)
+        servicesStore.saveCredentials(accessKey, secretKey, region)
+            .then(() => servicesStore.fetchServices())
             .then(() => {
                 this.setState({isLoading: false});
-
-                return navigation.navigate('App');
+                return navigation.navigate('Services');
             }, error => {
                 this.setState({error, isLoading: false});
             });
     }
 
     render() {
-        const { error, isLoading } = this.state;
+        const { navigation, servicesStore } = this.props;
+        const { isLoading, error } = this.state;
 
         if(isLoading) {
             return (
@@ -127,7 +130,7 @@ export default class Login extends React.Component {
 
                 <Button color="white" title="Login" onPress={() => this.onLogin()} />
 
-                {error? <Text style={errorMessage}>{error.message}</Text> : null}
+                {error? <Text style={styles.errorMessage}>{error.message}</Text> : null}
             </View>
         );
     }

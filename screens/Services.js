@@ -1,5 +1,5 @@
 import React from 'react';
-import {observer} from 'mobx-react';
+import {inject, observer} from 'mobx-react';
 import {
     StyleSheet,
     Text,
@@ -35,16 +35,28 @@ function ServicesScreen({ services }) {
     );
 }
 
-function UnhealthyScreen({ screenProps }) {
-    return ServicesScreen( {
-        services: screenProps.servicesStore.unhealthyServices()
-    } );
+@inject('servicesStore')
+@observer
+class UnhealthyScreen extends React.Component {
+    render() {
+        const { servicesStore } = this.props;
+
+        return (
+            <ServicesScreen services={servicesStore.unhealthyServices}></ServicesScreen>
+        );
+    }
 }
 
-function HealthyScreen({ screenProps }) {
-    return ServicesScreen( {
-        services: screenProps.servicesStore.healthyServices()
-    } );
+@inject('servicesStore')
+@observer
+class HealthyScreen extends React.Component {
+    render() {
+        const { servicesStore } = this.props;
+
+        return (
+            <ServicesScreen services={servicesStore.healthyServices}></ServicesScreen>
+        );
+    }
 }
 
 function ServicesTabBar({ navigation }) {
@@ -73,7 +85,6 @@ class ServicesTabView extends React.Component {
 
     render() {
         const { navigation, descriptors } = this.props;
-        const servicesStore = navigation.getParam('servicesStore');
         const { routes, index } = navigation.state;
 
         const ActiveScreen = descriptors[routes[index].routeName].getComponent();
@@ -81,7 +92,7 @@ class ServicesTabView extends React.Component {
         return (
             <SafeAreaView style={styles.servicesTabView}>
                 <ServicesTabBar navigation={navigation} />
-                <ActiveScreen screenProps={{servicesStore}} />
+                <ActiveScreen />
             </SafeAreaView>
         );
     }

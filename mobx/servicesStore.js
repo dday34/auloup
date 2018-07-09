@@ -1,5 +1,6 @@
-import {configure, observable, flow } from 'mobx';
+import {configure, observable, flow, computed } from 'mobx';
 import aws from '../aws';
+import auth from '../auth';
 
 configure({enforceActions: true});
 
@@ -12,18 +13,40 @@ function byName(service1, service2) {
 
 class Store {
     @observable services = []
+    @observable isAuthenticated = false
+
+    saveCredentials = flow(function * (accessKey, secretKey, region) {
+        yield auth.saveCredentials(accessKey, secretKey, region);
+
+        this.isAuthenticated = true;
+    })
+
+    loadCredentials = flow(function * () {
+        const credentials = yield auth.loadCredentialsFromStore();
+
+        if(credentials) {
+            this.isAuthenticated = true;
+        }
+
+        return credentials;
+    })
+
+    logout = flow(function * () {
+        yield auth.clearCredentials();
+        this.services = [];
+        this.isAuthenticated = false;
+    })
 
     fetchServices = flow(function * () {
         const services = yield aws.getECSServicesWithAlarms();
-
         this.services = services.sort(byName);
     })
 
-    healthyServices = function() {
+    @computed get healthyServices() {
         return this.services.filter(s => s.state === 'OK');
     }
 
-    unhealthyServices = function() {
+    @computed get unhealthyServices() {
         return this.services.filter(s => s.state !== 'OK');
     }
 

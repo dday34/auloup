@@ -3,13 +3,9 @@ import {
     Text,
     Button
 } from 'react-native';
-import auth from '../auth';
+import { inject } from 'mobx-react';
 
-function logout(navigation) {
-    auth.clearCredentials();
-    navigation.navigate('Login');
-}
-
+@inject('servicesStore')
 class Settings extends React.Component {
 
     static navigationOptions = {
@@ -17,10 +13,14 @@ class Settings extends React.Component {
     }
 
     render() {
-        const { navigation } = this.props;
+        const { navigation, servicesStore } = this.props;
 
         return (
-            <Button title="Logout" onPress={() => logout(navigation)} />
+            <Button title="Logout" onPress={() => {
+                    servicesStore.logout().then(() => {
+                        navigation.navigate('Login');
+                    });
+            }} />
         );
     }
 }

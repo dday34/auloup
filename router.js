@@ -20,7 +20,6 @@ export const Main = createStackNavigator({
     }
 }, {
     initialRouteName: 'Services',
-    initialRouteParams: {servicesStore},
     navigationOptions: {
         headerTintColor: 'white',
         headerStyle: {
@@ -43,8 +42,7 @@ function createRootNavigator(signedIn = false) {
         }
     }, {
         headerMode: 'none',
-        initialRouteName: signedIn ? 'Main' : 'Login',
-        initialRouteParams: {servicesStore}
+        initialRouteName: signedIn ? 'Main' : 'Login'
     });
 }
 
