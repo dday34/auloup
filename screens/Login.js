@@ -69,8 +69,7 @@ export default class Login extends React.Component {
         this.state = {
             accessKey: '',
             secretKey: '',
-            region: aws.regions[0].value,
-            isLoading: false
+            region: aws.regions[0].value
         };
     }
 
@@ -78,12 +77,9 @@ export default class Login extends React.Component {
         const {accessKey, secretKey, region} = this.state;
         const { servicesStore, navigation } = this.props;
 
-        this.setState({isLoading: true});
-
         servicesStore.saveCredentials(accessKey, secretKey, region)
             .then(() => servicesStore.fetchServices())
             .then(() => {
-                this.setState({isLoading: false});
                 if(!servicesStore.fetchingServicesError) {
                     return navigation.navigate('Services');
                 }
@@ -92,10 +88,9 @@ export default class Login extends React.Component {
     }
 
     render() {
-        const { navigation, servicesStore } = this.props;
-        const { isLoading } = this.state;
+        const { servicesStore } = this.props;
 
-        if(isLoading) {
+        if(servicesStore.isLoadingServices) {
             return (
                 <View style={styles.loadingPage}>
                     <ActivityIndicator size="large" color="white" />

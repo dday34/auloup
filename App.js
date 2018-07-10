@@ -4,7 +4,7 @@ import {
     ActivityIndicator,
     StyleSheet
 } from 'react-native';
-import { Provider } from 'mobx-react';
+import { Provider, observer } from 'mobx-react';
 import auth from './auth';
 import { createRootNavigator } from './router';
 import { brandColor } from './styles';
@@ -19,32 +19,20 @@ const styles = StyleSheet.create({
     }
 });
 
+@observer
 export default class App extends React.Component {
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            isLoading: true
-        };
-    }
-
     componentDidMount() {
-        servicesStore.loadCredentials().then(credentials => {
-            if(credentials) {
+        servicesStore.loadCredentials().then(() => {
+            if(servicesStore.isAuthenticated) {
                 return servicesStore.fetchServices();
             }
-        }).finally(() => {
-            this.setState({
-                isLoading: false
-            });
         });
     }
 
     render() {
-       const {isLoading} = this.state;
 
-        if(isLoading) {
+        if(servicesStore.isLoadingServices) {
             return (
                 <View style={styles.loadingPage}>
                     <ActivityIndicator size="large" color="white"  />

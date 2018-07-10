@@ -14,6 +14,7 @@ function byName(service1, service2) {
 class Store {
     @observable services = []
     @observable fetchingServicesError;
+    @observable isLoadingServices = true;
     @observable isAuthenticated = false
 
     saveCredentials = flow(function * (accessKey, secretKey, region) {
@@ -40,12 +41,14 @@ class Store {
 
     fetchServices = flow(function * () {
         try {
+            this.isLoadingServices = true;
             this.fetchingServicesError = null;
             const services = yield aws.getECSServicesWithAlarms();
             this.services = services.sort(byName);
         } catch (error) {
             this.fetchingServicesError = error;
         }
+        this.isLoadingServices = false;
     })
 
     @computed get healthyServices() {
