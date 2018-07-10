@@ -70,8 +70,7 @@ export default class Login extends React.Component {
             accessKey: '',
             secretKey: '',
             region: aws.regions[0].value,
-            isLoading: false,
-            error: null
+            isLoading: false
         };
     }
 
@@ -85,15 +84,16 @@ export default class Login extends React.Component {
             .then(() => servicesStore.fetchServices())
             .then(() => {
                 this.setState({isLoading: false});
-                return navigation.navigate('Services');
-            }, error => {
-                this.setState({error, isLoading: false});
+                if(!servicesStore.fetchingServicesError) {
+                    return navigation.navigate('Services');
+                }
+
             });
     }
 
     render() {
         const { navigation, servicesStore } = this.props;
-        const { isLoading, error } = this.state;
+        const { isLoading } = this.state;
 
         if(isLoading) {
             return (
@@ -130,7 +130,7 @@ export default class Login extends React.Component {
 
                 <Button color="white" title="Login" onPress={() => this.onLogin()} />
 
-                {error? <Text style={styles.errorMessage}>{error.message}</Text> : null}
+                {servicesStore.fetchingServicesError? <Text style={styles.errorMessage}>{servicesStore.fetchingServicesError.message}</Text> : null}
             </View>
         );
     }
