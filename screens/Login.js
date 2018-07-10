@@ -78,7 +78,7 @@ export default class Login extends React.Component {
         const { servicesStore, navigation } = this.props;
 
         servicesStore.saveCredentials(accessKey, secretKey, region)
-            .then(() => servicesStore.fetchServices())
+            .then(() => servicesStore.loadServices())
             .then(() => {
                 if(!servicesStore.fetchingServicesError) {
                     return navigation.navigate('Services');

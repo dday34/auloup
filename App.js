@@ -25,7 +25,7 @@ export default class App extends React.Component {
     componentDidMount() {
         servicesStore.loadCredentials().then(() => {
             if(servicesStore.isAuthenticated) {
-                return servicesStore.fetchServices();
+                return servicesStore.loadServices();
             }
         });
     }

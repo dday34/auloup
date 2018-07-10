@@ -5,7 +5,8 @@ import {
     Text,
     FlatList,
     TouchableOpacity,
-    Image
+    Image,
+    RefreshControl
 } from 'react-native';
 import {
     TabRouter,
@@ -29,10 +30,26 @@ const styles = StyleSheet.create({
     }
 });
 
-function ServicesScreen({ services }) {
-    return (
-        <FlatList data={services} renderItem={({item}) => <ServiceTile item={item}></ServiceTile>} />
-    );
+@inject('servicesStore')
+@observer
+class ServicesScreen extends React.Component {
+
+    render() {
+        const { services, servicesStore } = this.props;
+
+        return (
+            <FlatList
+                data={services}
+                renderItem={({item}) => <ServiceTile item={item}></ServiceTile>}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={servicesStore.isRefreshingServices || false}
+                        onRefresh={() => servicesStore.refreshServices(true)}
+                    />
+                }
+            />
+        );
+    }
 }
 
 @inject('servicesStore')
