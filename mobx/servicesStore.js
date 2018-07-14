@@ -1,4 +1,4 @@
-import {configure, observable, flow, computed } from 'mobx';
+import {configure, observable, flow, computed, action } from 'mobx';
 import aws from '../aws';
 import auth from '../auth';
 
@@ -11,6 +11,10 @@ function byName(service1, service2) {
     return 0;
 }
 
+function includeSearchTerm(searchTerm, service) {
+    return service.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+}
+
 class Store {
     @observable services = []
     @observable fetchingServicesError;
@@ -18,6 +22,7 @@ class Store {
     @observable isLoadingCredentials = true;
     @observable isRefreshingServices = false;
     @observable isAuthenticated = false
+    @observable searchTerm = '';
 
     saveCredentials = flow(function * (accessKey, secretKey, region) {
         yield auth.saveCredentials(accessKey, secretKey, region);
@@ -52,6 +57,10 @@ class Store {
         }
     })
 
+    @computed get filteredServices() {
+        return this.services.filter(s => includeSearchTerm(this.searchTerm, s));
+    }
+
     loadServices = flow(function * () {
         this.isLoadingServices = true;
         yield this.fetchServices();
@@ -79,6 +88,11 @@ class Store {
         service.events = services[0].events;
         service.isRefreshing = false;
     })
+
+    @action.bound
+    setFilter(term) {
+        this.searchTerm = term;
+    }
 }
 
 export default new Store;

@@ -5,7 +5,9 @@ import {
     FlatList,
     TouchableOpacity,
     Image,
-    RefreshControl
+    RefreshControl,
+    View,
+    TextInput
 } from 'react-native';
 
 import ServiceTile from '../components/ServiceTile';
@@ -18,8 +20,10 @@ const styles = StyleSheet.create({
         height: 30,
         marginRight: 10
     },
-    servicesTabView: {
-        flex: 1
+    filterInput: {
+        height: 50,
+        fontSize: 15,
+        paddingLeft: 10
     }
 });
 
@@ -40,16 +44,23 @@ class Services extends React.Component {
         const { servicesStore } = this.props;
 
         return (
-            <FlatList
-                data={servicesStore.services}
-                renderItem={({item}) => <ServiceTile item={item}></ServiceTile>}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={servicesStore.isRefreshingServices || false}
-                        onRefresh={() => servicesStore.refreshServices(true)}
-                    />
-                }
-            />
+            <View>
+                <TextInput
+                    style={styles.filterInput}
+                    placeholder={"Filter"}
+                    onChangeText={servicesStore.setFilter}
+                />
+                <FlatList
+                    data={servicesStore.filteredServices}
+                    renderItem={({item}) => <ServiceTile item={item}></ServiceTile>}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={servicesStore.isRefreshingServices || false}
+                                       onRefresh={() => servicesStore.refreshServices(true)}
+                        />
+                    }
+                />
+            </View>
         );
     }
 }
