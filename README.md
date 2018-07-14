@@ -1,5 +1,5 @@
-# AWS ECS Mobile
-A mobile application that helps you monitor your services on AWS ECS.
+# Spyglass for Amazon ECS
+A mobile application that helps you monitor your services on Amazon Elastic Container Service.
 
 ## Installation
 

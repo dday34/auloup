@@ -1,15 +1,15 @@
 {
   "expo": {
-      "name": "AWS ECS Mobile",
+      "name": "Spyglass for Amazon ECS",
       "sdkVersion": "27.0.0",
       "icon": "images/AWS-icon.png",
       "version": "1.0.0",
-      "slug": "aws-ecs-mobile",
+      "slug": "spyglass-for-amazon-ecs",
       "ios": {
-          "bundleIdentifier": "com.dsendner.awsecsmobile"
+          "bundleIdentifier": "com.dsendner.spyglassforamazonecs"
       },
       "android": {
-          "package": "com.dsendner.awsecsmobile"
+          "package": "com.dsendner.spyglassforamazonecs"
       }
   }
 }
