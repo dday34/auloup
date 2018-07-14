@@ -186,28 +186,12 @@ async function getCloudwatchLogs(group, streamPrefix) {
 
 let servicesWithAlarmsCache;
 
-function setState(service) {
-    const alarm = service.alarms.find(a => a.state === 'ALARM');
-    const insuficientData = service.alarms.find(a => a.state === 'INSUFFICIENT_DATA');
-
-    if(alarm) {
-        return 'ALARM';
-    }
-
-    if(insuficientData) {
-        return 'INSUFFICIENT_DATA';
-    }
-
-    return 'OK';
-}
-
 async function getECSServicesWithAlarms() {
     const services = await getAllServices();
     const alarms = await getECSServicesAlarms();
 
     return services.map(s => {
         s.alarms = alarms.filter(a => a.service === s.name);
-        s.state = setState(s);
 
         return s;
     });

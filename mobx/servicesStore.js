@@ -64,14 +64,6 @@ class Store {
         this.isRefreshingServices = false;
     })
 
-    @computed get healthyServices() {
-        return this.services.filter(s => s.state === 'OK');
-    }
-
-    @computed get unhealthyServices() {
-        return this.services.filter(s => s.state !== 'OK');
-    }
-
     fetchServiceLogs = flow(function * (service) {
         service.isLoading = true;
         service.isRefreshing = !!service.logs;
