@@ -14,7 +14,8 @@ function byName(service1, service2) {
 class Store {
     @observable services = []
     @observable fetchingServicesError;
-    @observable isLoadingServices = true;
+    @observable isLoadingServices = false;
+    @observable isLoadingCredentials = true;
     @observable isRefreshingServices = false;
     @observable isAuthenticated = false
 
@@ -25,13 +26,14 @@ class Store {
     })
 
     loadCredentials = flow(function * () {
+        this.isLoadingCredentials = true;
         const credentials = yield auth.loadCredentialsFromStore();
 
         if(credentials) {
             this.isAuthenticated = true;
         }
 
-        return credentials;
+        this.isLoadingCredentials = false;
     })
 
     logout = flow(function * () {

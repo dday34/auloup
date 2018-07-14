@@ -31,8 +31,7 @@ export default class App extends React.Component {
     }
 
     render() {
-
-        if(servicesStore.isLoadingServices) {
+        if(servicesStore.isLoadingCredentials || servicesStore.isLoadingServices) {
             return (
                 <View style={styles.loadingPage}>
                     <ActivityIndicator size="large" color="white"  />
