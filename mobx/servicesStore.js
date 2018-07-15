@@ -18,8 +18,7 @@ function includeSearchTerm(searchTerm, service) {
 class Store {
     @observable services = []
     @observable fetchingServicesError;
-    @observable isLoadingServices = false;
-    @observable isLoadingCredentials = true;
+    @observable isLoadingServices = true;
     @observable isRefreshingServices = false;
     @observable isAuthenticated = false
     @observable searchTerm = '';
@@ -31,14 +30,13 @@ class Store {
     })
 
     loadCredentials = flow(function * () {
-        this.isLoadingCredentials = true;
         const credentials = yield auth.loadCredentialsFromStore();
 
         if(credentials) {
             this.isAuthenticated = true;
+        } else {
+            this.isLoadingServices = false;
         }
-
-        this.isLoadingCredentials = false;
     })
 
     logout = flow(function * () {
