@@ -2,7 +2,8 @@ import React from 'react';
 import {
     View,
     ActivityIndicator,
-    StyleSheet
+    StyleSheet,
+    Text
 } from 'react-native';
 import { Provider, observer } from 'mobx-react';
 import auth from './auth';
@@ -14,8 +15,16 @@ const styles = StyleSheet.create({
     loadingPage: {
         flex: 1,
         justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: brandColor,
         paddingTop: 20
+    },
+    loadingPageText: {
+        color: 'white',
+        fontSize: 15,
+        paddingTop: 20,
+        paddingLeft: 5,
+        paddingRight: 5
     }
 });
 
@@ -35,6 +44,9 @@ export default class App extends React.Component {
             return (
                 <View style={styles.loadingPage}>
                     <ActivityIndicator size="large" color="white"  />
+                    <Text style={styles.loadingPageText}>
+                        Loading all your services...
+                    </Text>
                 </View>
             );
         }
