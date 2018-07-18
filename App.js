@@ -32,11 +32,7 @@ const styles = StyleSheet.create({
 export default class App extends React.Component {
 
     componentDidMount() {
-        servicesStore.loadCredentials().then(() => {
-            if(servicesStore.isAuthenticated) {
-                return servicesStore.loadServices();
-            }
-        });
+        servicesStore.loadCredentialsAndServices();
     }
 
     render() {

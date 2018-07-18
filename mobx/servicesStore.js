@@ -16,27 +16,20 @@ function includeSearchTerm(searchTerm, service) {
 }
 
 class Store {
-    @observable services = []
-    @observable fetchingServicesError;
+    @observable isAuthenticated = false
+    @observable isAuthenticatingAndLoadingServices = false;
     @observable isLoadingServices = true;
     @observable isRefreshingServices = false;
-    @observable isAuthenticated = false
+    @observable fetchingServicesError;
+    @observable services = []
     @observable searchTerm = '';
 
     saveCredentials = flow(function * (accessKey, secretKey, region) {
         yield auth.saveCredentials(accessKey, secretKey, region);
-
-        this.isAuthenticated = true;
     })
 
     loadCredentials = flow(function * () {
-        const credentials = yield auth.loadCredentialsFromStore();
-
-        if(credentials) {
-            this.isAuthenticated = true;
-        } else {
-            this.isLoadingServices = false;
-        }
+        return yield auth.loadCredentialsFromStore();
     })
 
     logout = flow(function * () {
@@ -59,9 +52,30 @@ class Store {
         return this.services.filter(s => includeSearchTerm(this.searchTerm, s));
     }
 
-    loadServices = flow(function * () {
-        this.isLoadingServices = true;
+    authenticateAndLoadServices = flow(function * (accessKey, secretKey, region) {
+        this.isAuthenticatingAndLoadingServices = true;
+        yield this.saveCredentials(accessKey, secretKey, region);
         yield this.fetchServices();
+
+        if(!this.fetchingServicesError) {
+            this.isAuthenticated = true;
+        }
+
+        this.isAuthenticatingAndLoadingServices = false;
+    })
+
+    loadCredentialsAndServices = flow(function * () {
+        this.isLoadingServices = true;
+        const credentials = yield this.loadCredentials();
+
+        if(credentials) {
+            yield this.fetchServices();
+
+            if(!this.fetchingServicesError) {
+                this.isAuthenticated = true;
+            }
+        }
+
         this.isLoadingServices = false;
     })
 

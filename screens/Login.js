@@ -56,6 +56,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: brandColor,
         paddingTop: 20
+    },
+    loadingPageText: {
+        color: 'white',
+        fontSize: 15,
+        paddingTop: 20,
+        paddingLeft: 5,
+        paddingRight: 5
     }
 });
 
@@ -75,25 +82,21 @@ export default class Login extends React.Component {
 
     onLogin() {
         const {accessKey, secretKey, region} = this.state;
-        const { servicesStore, navigation } = this.props;
+        const { servicesStore } = this.props;
 
-        servicesStore.saveCredentials(accessKey, secretKey, region)
-            .then(() => servicesStore.loadServices())
-            .then(() => {
-                if(!servicesStore.fetchingServicesError) {
-                    return navigation.navigate('Services');
-                }
-
-            });
+        servicesStore.authenticateAndLoadServices(accessKey, secretKey, region);
     }
 
     render() {
         const { servicesStore } = this.props;
 
-        if(servicesStore.isLoadingServices) {
+        if(servicesStore.isAuthenticatingAndLoadingServices) {
             return (
                 <View style={styles.loadingPage}>
                     <ActivityIndicator size="large" color="white" />
+                    <Text style={styles.loadingPageText}>
+                        Loading all your services...
+                    </Text>
                 </View>
             );
         }
