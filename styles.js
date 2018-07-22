@@ -1,4 +1,4 @@
-export const brandColor = '#3F51B5';
+export const brandColor = '#1472E7';
 
 export default {
     brandColor,
