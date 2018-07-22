@@ -4,7 +4,9 @@ import {
     Text,
     View,
     FlatList,
-    TouchableOpacity
+    TouchableOpacity,
+    TouchableNativeFeedback,
+    Platform
 } from 'react-native';
 import {
     withNavigation
@@ -13,12 +15,12 @@ import {
 const styles = StyleSheet.create({
     service: {
         flex: 1,
-        backgroundColor: 'white',
-        paddingTop: 16,
-        paddingBottom: 20,
-        paddingHorizontal: 16,
         borderColor: '#F2F2F2',
-        borderWidth: 1
+        borderWidth: 1,
+        backgroundColor: 'white',
+        paddingHorizontal: 16,
+        paddingBottom: 20,
+        paddingTop: 16
     },
     serviceTitle: {
         fontSize: 16,
@@ -44,18 +46,39 @@ function AlarmLine(alarm) {
     return <Text style={styles.alarm}>{alarm.item.metric} {operatorFormat[alarm.item.operator]} {alarm.item.threshold}</Text>
 }
 
+function button(onPress, innerView) {
+    if(Platform.OS === 'ios') {
+        return (
+            <TouchableOpacity onPress={onPress} >
+                {innerView()}
+            </TouchableOpacity>
+        );
+    }
+
+    return (
+        <TouchableNativeFeedback
+            onPress={onPress}
+            background={TouchableNativeFeedback.Ripple()}
+            useForeground={true}
+        >
+            {innerView()}
+        </TouchableNativeFeedback>
+    );
+
+}
+
 class ServiceTile extends React.Component {
     render() {
         const { item, navigation } = this.props;
 
-        return (
-            <View style={styles.service}>
-                <TouchableOpacity onPress={() => navigation.navigate('ServiceDetails', {service: item})}>
+        return button(() => navigation.navigate('ServiceDetails', {service: item}), () => {
+            return (
+                <View style={styles.service}>
                     <Text style={styles.serviceTitle}>{item.get('displayName')}</Text>
                     <FlatList data={item.get('alarms').filter(a => a.state !== 'OK')} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
-                </TouchableOpacity>
-            </View>
-        );
+                </View>
+            );
+        });
     }
 }
 

@@ -3,11 +3,13 @@ import {inject, observer} from 'mobx-react';
 import {
     StyleSheet,
     FlatList,
+    TouchableNativeFeedback,
     TouchableOpacity,
     RefreshControl,
     View,
     TextInput,
-    Text
+    Text,
+    Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -16,10 +18,14 @@ import globalStyles from '../styles';
 import aws from '../aws';
 
 const styles = StyleSheet.create({
+    settingsIconView: {
+        width: 30,
+        height: 30,
+        marginRight: 10
+    },
     settingsIcon: {
         width: 30,
         height: 30,
-        marginRight: 10,
         color: 'white'
     },
     searchSection: {
@@ -51,18 +57,40 @@ const styles = StyleSheet.create({
     }
 });
 
+function settingsButton(navigation, innerView) {
+    if (Platform.OS === 'ios') {
+        return (
+            <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+                {innerView()}
+            </TouchableOpacity>
+        );
+    }
+
+    return (
+        <TouchableNativeFeedback
+            onPress={() => navigation.navigate('Settings')}
+            background={TouchableNativeFeedback.Ripple()}
+            useForeground={true}
+        >
+            {innerView()}
+        </TouchableNativeFeedback>
+    );
+}
+
 @inject('servicesStore')
 @observer
 class Services extends React.Component {
 
     static navigationOptions = ({ navigation }) => ({
         title: 'Services',
-        headerRight: (
-            <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-                <Ionicons style={styles.settingsIcon} name="md-settings" size={30}></Ionicons>
-            </TouchableOpacity>
-        )
-    });
+        headerRight: settingsButton(navigation, () => {
+            return (
+                <View style={styles.settingsIconView}>
+                    <Ionicons style={styles.settingsIcon} name="md-settings" size={30}></Ionicons>
+                </View>
+            );
+        })
+    })
 
     render() {
         const { servicesStore } = this.props;
