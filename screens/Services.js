@@ -53,6 +53,7 @@ class Services extends React.Component {
                 <FlatList
                     data={servicesStore.filteredServices}
                     renderItem={({item}) => <ServiceTile item={item}></ServiceTile>}
+                    keyExtractor={(item, index) => item.get('name')}
                     refreshControl={
                         <RefreshControl
                             refreshing={servicesStore.isRefreshingServices || false}
