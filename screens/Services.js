@@ -7,8 +7,9 @@ import {
     Image,
     RefreshControl,
     View,
-    TextInput
+    TextInput,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import ServiceTile from '../components/ServiceTile';
 import globalStyles from '../styles';
@@ -20,10 +21,24 @@ const styles = StyleSheet.create({
         height: 30,
         marginRight: 10
     },
-    filterInput: {
+    searchSection: {
+        flex: 0,
+        flexDirection: 'row',
+        backgroundColor: 'white',
+        elevation: 2
+    },
+    searchIcon: {
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingHorizontal: 16,
+        height: 50,
+        color: '#828282'
+    },
+    searchInput: {
+        flex: 1,
         height: 50,
         fontSize: 15,
-        paddingLeft: 10
+        paddingLeft: 0
     }
 });
 
@@ -45,11 +60,15 @@ class Services extends React.Component {
 
         return (
             <View>
-                <TextInput
-                    style={styles.filterInput}
-                    placeholder={"Filter"}
-                    onChangeText={servicesStore.setFilter}
-                />
+                <View style={styles.searchSection}>
+                    <Ionicons style={styles.searchIcon} name="md-search" size={30}></Ionicons>
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Search Services"
+                        onChangeText={servicesStore.setFilter}
+                        underlineColorAndroid={'transparent'}
+                    />
+                </View>
                 <FlatList
                     data={servicesStore.filteredServices}
                     renderItem={({item}) => <ServiceTile item={item}></ServiceTile>}
