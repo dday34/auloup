@@ -51,8 +51,8 @@ class ServiceTile extends React.Component {
         return (
             <View style={styles.service}>
                 <TouchableOpacity onPress={() => navigation.navigate('ServiceDetails', {service: item})}>
-                    <Text style={styles.serviceTitle}>{item.displayName}</Text>
-                    <FlatList data={item.alarms.filter(a => a.state !== 'OK')} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
+                    <Text style={styles.serviceTitle}>{item.get('displayName')}</Text>
+                    <FlatList data={item.get('alarms').filter(a => a.state !== 'OK')} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
                 </TouchableOpacity>
             </View>
         );

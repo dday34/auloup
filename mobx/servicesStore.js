@@ -12,7 +12,7 @@ function byName(service1, service2) {
 }
 
 function includeSearchTerm(searchTerm, service) {
-    return service.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+    return service.get('displayName').toLowerCase().includes(searchTerm.toLowerCase());
 }
 
 class Store {
@@ -42,7 +42,8 @@ class Store {
         try {
             this.fetchingServicesError = null;
             const services = yield aws.getECSServicesWithAlarms();
-            this.services = services.sort(byName);
+            this.services = services.sort(byName).map(service => observable.map(service));
+
         } catch (error) {
             this.fetchingServicesError = error;
         }
@@ -86,19 +87,19 @@ class Store {
     })
 
     fetchServiceLogs = flow(function * (service) {
-        service.isLoading = true;
-        service.isRefreshing = !!service.logs;
-        const logs = yield aws.getCloudwatchLogsForECSService(service.taskDefinitionArn);
-        service.logs = logs;
-        service.isLoading = false;
-        service.isRefreshing = false;
+        service.set('isLoading', true);
+        service.set('isRefreshing', !!service.get('logs'));
+        const logs = yield aws.getCloudwatchLogsForECSService(service.get('taskDefinitionArn'));
+        service.set('logs', logs);
+        service.set('isLoading', false);
+        service.set('isRefreshing', false);
     })
 
     fetchServiceEvents = flow(function * (service) {
-        service.isRefreshing = true;
-        const services = yield aws.getServices(service.cluster, [service.key]);
-        service.events = services[0].events;
-        service.isRefreshing = false;
+        service.set('isRefreshing', true);
+        const services = yield aws.getServices(service.get('cluster'), [service.get('key')]);
+        service.set('events', services[0].events);
+        service.set('isRefreshing', false);
     })
 
     @action.bound

@@ -89,7 +89,7 @@ async function getClusterServices(cluster) {
         token = nextToken;
 
         if(serviceArns.length > 0) {
-            const services = await getServices(cluster, serviceArns.slice(1));
+            const services = await getServices(cluster, serviceArns);
 
             allServices = allServices.concat(services);
         }
@@ -102,7 +102,7 @@ async function getClusterServices(cluster) {
 async function getAllServices() {
     const ecs = new AWS.ECS(config);
     const {clusterArns} = await ecs.listClusters().promise();
-    const services = await Promise.all(clusterArns.slice(1).map(c => getClusterServices(c)));
+    const services = await Promise.all(clusterArns.map(c => getClusterServices(c)));
 
     return [].concat.apply([], services);
 }

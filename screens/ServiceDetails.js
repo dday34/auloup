@@ -106,7 +106,7 @@ class LogsScreen extends React.Component {
     render() {
         const { screenProps: { service } } = this.props;
 
-        if(service.isLoading && !service.isRefreshing) {
+        if(service.get('isLoading') && !service.get('isRefreshing')) {
             return (
                 <View style={styles.loadingPage}>
                     <ActivityIndicator size="large" color={globalStyles.brandColor} />
@@ -114,11 +114,11 @@ class LogsScreen extends React.Component {
             );
         }
 
-        if(!service.logs) {
+        if(!service.get('logs')) {
             return (<View></View>)
         }
 
-        const sections = service.logs.map(c => ({
+        const sections = service.get('logs').map(c => ({
             title: c.name,
             data: c.logs.events
         }));
@@ -132,7 +132,7 @@ class LogsScreen extends React.Component {
                     keyExtractor={(item, index) => index}
                     refreshControl={
                         <RefreshControl
-                            refreshing={service.isRefreshing}
+                            refreshing={service.get('isRefreshing')}
                             onRefresh={this.loadLogs.bind(this)}
                         />
                     }
@@ -172,12 +172,12 @@ class EventsScreen extends React.Component {
         return (
             <View style={styles.eventsScreenView}>
                 <FlatList
-                    data={service.events.slice(0, 20)}
+                    data={service.get('events').slice(0, 20)}
                     renderItem={EventLine}
                     keyExtractor={(item, index) => index.toString()}
                     refreshControl={
                         <RefreshControl
-                            refreshing={service.isRefreshing || false}
+                            refreshing={service.get('isRefreshing') || false}
                             onRefresh={this.loadEvents.bind(this)}
                         />
                     }
@@ -205,8 +205,8 @@ class InfoScreen extends React.Component {
 
         return (
             <View style={styles.infoScreenView}>
-                <Text style={styles.status}>Status: {service.status}</Text>
-                <FlatList data={service.alarms} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
+                <Text style={styles.status}>Status: {service.get('status')}</Text>
+                <FlatList data={service.get('alarms')} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
             </View>
 
         );
@@ -286,7 +286,7 @@ class ServiceDetails extends React.Component {
 
     static navigationOptions = ({ navigation }) => {
         return {
-            title: navigation.getParam('service').displayName
+            title: navigation.getParam('service').get('displayName')
         };
     };
 
