@@ -28,6 +28,9 @@ const styles = StyleSheet.create({
         height: 30,
         color: 'white'
     },
+    services: {
+        flex: 1
+    },
     searchSection: {
         flex: 0,
         flexDirection: 'row',
@@ -54,6 +57,9 @@ const styles = StyleSheet.create({
     },
     emptyStateText: {
         fontSize: 17
+    },
+    serviceList: {
+        flex: 1
     }
 });
 
@@ -96,7 +102,7 @@ class Services extends React.Component {
         const { servicesStore } = this.props;
 
         return (
-            <View>
+            <View style={styles.services}>
                 <View style={styles.searchSection}>
                     <Ionicons style={styles.searchIcon} name="md-search" size={30}></Ionicons>
                     <TextInput
@@ -107,6 +113,7 @@ class Services extends React.Component {
                     />
                 </View>
                 <FlatList
+                    style={styles.serviceList}
                     data={servicesStore.filteredServices}
                     renderItem={({item}) => <ServiceTile item={item}></ServiceTile>}
                     keyExtractor={(item, index) => item.get('name')}
