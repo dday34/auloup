@@ -11,21 +11,19 @@ import {
 import {
     withNavigation
 } from 'react-navigation';
+import { Ionicons } from '@expo/vector-icons';
 
 const styles = StyleSheet.create({
     service: {
         flex: 1,
+        flexDirection: 'row',
         borderColor: '#F2F2F2',
         borderWidth: 1,
         backgroundColor: 'white',
-        paddingHorizontal: 16,
-        paddingBottom: 20,
-        paddingTop: 16
+        padding: 16,
     },
-    serviceTitle: {
-        fontSize: 16,
-        lineHeight: 19,
-        color: 'black'
+    serviceData: {
+        flex: 1
     },
     alarm: {
         color: '#828282',
@@ -33,6 +31,14 @@ const styles = StyleSheet.create({
         lineHeight: 16,
         marginTop: 5
     },
+    serviceTitle: {
+        fontSize: 16,
+        lineHeight: 19,
+        color: 'black'
+    },
+    serviceArrowIcon: {
+        color: '#828282'
+    }
 });
 
 function AlarmLine(alarm) {
@@ -74,8 +80,11 @@ class ServiceTile extends React.Component {
         return button(() => navigation.navigate('ServiceDetails', {service: item}), () => {
             return (
                 <View style={styles.service}>
-                    <Text style={styles.serviceTitle}>{item.get('displayName')}</Text>
-                    <FlatList data={item.get('alarms').filter(a => a.state !== 'OK')} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
+                    <View style={styles.serviceData}>
+                        <Text style={styles.serviceTitle}>{item.get('displayName')}</Text>
+                        <FlatList data={item.get('alarms').filter(a => a.state !== 'OK')} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
+                    </View>
+                    <Ionicons style={styles.serviceArrowIcon} name="ios-arrow-forward" size={20}></Ionicons>
                 </View>
             );
         });
