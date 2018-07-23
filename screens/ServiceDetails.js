@@ -19,11 +19,38 @@ import {
 import { inject, observer } from 'mobx-react';
 import moment from 'moment';
 import aws from '../aws';
-import globalStyles from '../styles';
+import { brandColor } from '../styles';
 
 const styles = StyleSheet.create({
     serviceDetailsTabView: {
         flex: 1
+    },
+    tabBar: {
+        flexDirection: 'row',
+        height: 48,
+        shadowColor: 'black',
+        shadowOffset: {width: 0, height: 1},
+        shadowOpacity: 0.17,
+        shadowRadius: 2,
+        zIndex: 1,
+        elevation: 2
+    },
+    tab: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: brandColor
+    },
+    activeTab: {
+        borderBottomWidth: 3,
+        borderBottomColor: 'white'
+    },
+    tabText: {
+        color: 'white',
+        fontSize: 15,
+    },
+    activeTabText: {
+        fontWeight: 'bold'
     },
     infoScreenView: {
         flex: 1,
@@ -109,7 +136,7 @@ class LogsScreen extends React.Component {
         if(service.get('isLoading') && !service.get('isRefreshing')) {
             return (
                 <View style={styles.loadingPage}>
-                    <ActivityIndicator size="large" color={globalStyles.brandColor} />
+                    <ActivityIndicator size="large" color={brandColor} />
                 </View>
             );
         }
@@ -217,14 +244,14 @@ function ServiceDetailsTabBar({ navigation }) {
     const { routes, index: activeTabIndex } = navigation.state;
 
     return (
-        <SafeAreaView style={globalStyles.tabBar}>
+        <SafeAreaView style={styles.tabBar}>
             {routes.map((route, index) => (
                 <TouchableOpacity
                     onPress={() => navigation.navigate(route.routeName)}
                     key={route.routeName}
-                    style={[globalStyles.tab, index === activeTabIndex && globalStyles.activeTab]}
+                    style={[styles.tab, index === activeTabIndex && styles.activeTab]}
                     >
-                    <Text style={globalStyles.tabText}>{route.routeName.toUpperCase()}</Text>
+                    <Text style={[styles.tabText, index === activeTabIndex && styles.activeTabText]}>{route.routeName}</Text>
                 </TouchableOpacity>
             ))}
         </SafeAreaView>
