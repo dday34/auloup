@@ -11,6 +11,17 @@ function byName(service1, service2) {
     return 0;
 }
 
+function hasAlarm(service) {
+    return !!service.alarms.find(alarm => alarm.status === 'ALARM');
+}
+
+function byAlarmAndName(service1, service2) {
+    if(hasAlarm(service1) && !hasAlarm(service2)) return -1;
+    if(hasAlarm(service2) && !hasAlarm(service1)) return 1;
+
+    return byName(service1, service2);
+}
+
 function includeSearchTerm(searchTerm, service) {
     return service.get('displayName').toLowerCase().includes(searchTerm.toLowerCase());
 }
@@ -42,7 +53,7 @@ class Store {
         try {
             this.fetchingServicesError = null;
             const services = yield aws.getECSServicesWithAlarms();
-            this.services = services.sort(byName).map(service => observable.map(service));
+            this.services = services.sort(byAlarmAndName).map(service => observable.map(service));
 
         } catch (error) {
             this.fetchingServicesError = error;
