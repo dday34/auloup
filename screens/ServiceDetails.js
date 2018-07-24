@@ -70,14 +70,20 @@ const styles = StyleSheet.create({
         color: '#828282'
     },
     event: {
-        marginBottom: 10,
-        marginHorizontal: 16,
+        borderColor: '#F2F2F2',
+        borderTopWidth: 1,
+        backgroundColor: 'white',
+        padding: 16,
     },
     eventDate: {
+        color: '#828282',
         marginBottom: 5,
+        fontSize: 13
     },
     eventMessage: {
         marginBottom: 10,
+        fontSize: 15,
+        lineHeight: 20
     },
     loadingPage: {
         flex: 1,
@@ -87,12 +93,14 @@ const styles = StyleSheet.create({
     }
 });
 
+const dateFormat = 'DD/MM/YY HH:mm:ss';
+
 function LogSectionHeader({section}) {
     return (<Text style={styles.logSectionHeader}>{section.title}</Text>);
 }
 
 function LogLine(log) {
-    const logDate = moment(log.item.timestamp).format('DD/MM/YY hh:mm:ss');
+    const logDate = moment(log.item.timestamp).format(dateFormat);
     return (
         <View style={styles.event}>
             <Text style={styles.eventDate}>{logDate}</Text>
@@ -155,7 +163,7 @@ class LogsScreen extends React.Component {
 }
 
 function EventLine(event) {
-    const eventDate = moment(event.item.createdAt).format('DD/MM/YY hh:mm:ss');
+    const eventDate = moment(event.item.createdAt).format(dateFormat);
     return (
         <View style={styles.event}>
             <Text style={styles.eventDate}>{eventDate}</Text>
@@ -184,7 +192,7 @@ class EventsScreen extends React.Component {
         return (
             <View style={styles.eventsScreenView}>
                 <FlatList
-                    data={service.get('events').slice(0, 20)}
+                    data={service.get('events')}
                     renderItem={EventLine}
                     keyExtractor={(item, index) => index.toString()}
                     refreshControl={

@@ -1,4 +1,5 @@
 import {configure, observable, flow, computed, action } from 'mobx';
+import moment from 'moment';
 import aws from '../aws';
 import auth from '../auth';
 
@@ -21,6 +22,17 @@ function byAlarmAndName(service1, service2) {
 
     return byName(service1, service2);
 }
+
+function byCreatedAt(event1, event2) {
+    const date1 = moment(event1.createdAt);
+    const date2 = moment(event2.createdAt);
+
+    if(date1.isBefore(date2)) return 1;
+    if(date2.isBefore(date1)) return -1;
+
+    return 0;
+}
+
 
 function includeSearchTerm(searchTerm, service) {
     return service.get('displayName').toLowerCase().includes(searchTerm.toLowerCase());
@@ -53,7 +65,11 @@ class Store {
         try {
             this.fetchingServicesError = null;
             const services = yield aws.getECSServicesWithAlarms();
-            this.services = services.sort(byAlarmAndName).map(service => observable.map(service));
+            this.services = services.sort(byAlarmAndName).map(service => {
+                service.events = service.events.sort(byCreatedAt).slice(0, 20);
+
+                return observable.map(service);
+            });
 
         } catch (error) {
             this.fetchingServicesError = error;
@@ -109,7 +125,7 @@ class Store {
     fetchServiceEvents = flow(function * (service) {
         service.set('isRefreshing', true);
         const services = yield aws.getServices(service.get('cluster'), [service.get('key')]);
-        service.set('events', services[0].events);
+        service.set('events', services[0].events.sort(byCreatedAt).slice(0, 20));
         service.set('isRefreshing', false);
     })
 
