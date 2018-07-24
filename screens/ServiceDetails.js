@@ -52,13 +52,6 @@ const styles = StyleSheet.create({
     activeTabText: {
         fontWeight: 'bold'
     },
-    infoScreenView: {
-        flex: 1,
-        backgroundColor: 'white',
-        paddingTop: 10,
-        paddingBottom: 10,
-        paddingHorizontal: 16
-    },
     eventsScreenView: {
         flex: 1,
         backgroundColor: 'white',
@@ -68,14 +61,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'white',
         paddingTop: 10
-    },
-    status: {
-        fontSize: 17
-    },
-    alarm: {
-        fontSize: 17,
-        lineHeight: 17,
-        marginTop: 10
     },
     logSectionHeader: {
         paddingHorizontal: 16,
@@ -226,20 +211,6 @@ function AlarmLine(alarm) {
     return <Text style={[styles.alarm, {color}]}>{alarm.item.metric} {operatorFormat[alarm.item.operator]} {alarm.item.threshold} {alarm.item.state}</Text>;
 }
 
-class InfoScreen extends React.Component {
-    render() {
-        const { screenProps: { service } } = this.props;
-
-        return (
-            <View style={styles.infoScreenView}>
-                <Text style={styles.status}>Status: {service.get('status')}</Text>
-                <FlatList data={service.get('alarms')} renderItem={AlarmLine} keyExtractor={(item, index) => index.toString()}/>
-            </View>
-
-        );
-    }
-};
-
 function ServiceDetailsTabBar({ navigation }) {
     const { routes, index: activeTabIndex } = navigation.state;
 
@@ -286,10 +257,6 @@ class ServiceDetailsTabView extends React.Component {
 }
 
 const ServiceDetailsTabRouter = TabRouter({
-    Info: {
-        screen: InfoScreen,
-        path: 'info'
-    },
     Events: {
         screen: EventsScreen,
         path: 'events'
@@ -299,7 +266,7 @@ const ServiceDetailsTabRouter = TabRouter({
         path: 'logs'
     }
 }, {
-    initialRouteName: 'Info',
+    initialRouteName: 'Events',
     animationEnabled: true
 });
 
