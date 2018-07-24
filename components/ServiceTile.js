@@ -4,14 +4,13 @@ import {
     Text,
     View,
     FlatList,
-    TouchableOpacity,
-    TouchableNativeFeedback,
     Platform
 } from 'react-native';
 import {
     withNavigation
 } from 'react-navigation';
 import { Ionicons } from '@expo/vector-icons';
+import Button from './Button';
 
 const styles = StyleSheet.create({
     service: {
@@ -52,32 +51,11 @@ function AlarmLine(alarm) {
     return <Text style={styles.alarm}>{alarm.item.metric} {operatorFormat[alarm.item.operator]} {alarm.item.threshold}</Text>
 }
 
-function button(onPress, innerView) {
-    if(Platform.OS === 'ios') {
-        return (
-            <TouchableOpacity onPress={onPress} >
-                {innerView()}
-            </TouchableOpacity>
-        );
-    }
-
-    return (
-        <TouchableNativeFeedback
-            onPress={onPress}
-            background={TouchableNativeFeedback.Ripple()}
-            useForeground={true}
-        >
-            {innerView()}
-        </TouchableNativeFeedback>
-    );
-
-}
-
 class ServiceTile extends React.Component {
     render() {
         const { item, navigation } = this.props;
 
-        return button(() => navigation.navigate('ServiceDetails', {service: item}), () => {
+        return Button(() => navigation.navigate('ServiceDetails', {service: item}), () => {
             return (
                 <View style={styles.service}>
                     <View style={styles.serviceData}>

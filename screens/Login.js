@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
     },
     loginForm: {
         flex: 1,
+        justifyContent: 'center',
         paddingTop: 20,
         paddingBottom: 20
     },
@@ -140,10 +141,10 @@ export default class Login extends React.Component {
 
         return (
             <View style={styles.login}>
-                <Image style={styles.logo} source={require('../images/AWS-icon.png')} />
-                <Text style={styles.title}>Spyglass for Amazon ECS</Text>
-
                 <View style={styles.loginForm}>
+                    <Image style={styles.logo} source={require('../images/logo.png')} />
+                    <Text style={styles.title}>Spyglass for Amazon ECS</Text>
+
                     {servicesStore.fetchingServicesError? <Text style={styles.errorMessage}>{servicesStore.fetchingServicesError.message}</Text> : null}
                     <TextInput
                         style={[styles.input, showRequiredInput && !accessKey && styles.inputRequired]}

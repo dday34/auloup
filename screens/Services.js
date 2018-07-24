@@ -35,6 +35,11 @@ const styles = StyleSheet.create({
         flex: 0,
         flexDirection: 'row',
         backgroundColor: 'white',
+        shadowColor: 'black',
+        shadowOffset: {width: 0, height: 1},
+        shadowOpacity: 0.17,
+        shadowRadius: 2,
+        zIndex: 1,
         elevation: 2
     },
     searchIcon: {

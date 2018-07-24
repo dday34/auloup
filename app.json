@@ -2,7 +2,7 @@
   "expo": {
       "name": "Spyglass for Amazon ECS",
       "sdkVersion": "28.0.0",
-      "icon": "images/AWS-icon.png",
+      "icon": "images/logo.png",
       "version": "1.0.0",
       "slug": "spyglass-for-amazon-ecs",
       "ios": {

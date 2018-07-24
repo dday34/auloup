@@ -33,13 +33,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.17,
         shadowRadius: 2,
         zIndex: 1,
-        elevation: 2
     },
     tab: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: brandColor
+        backgroundColor: brandColor,
+        elevation: 2
     },
     activeTab: {
         borderBottomWidth: 3,
