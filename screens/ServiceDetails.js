@@ -90,6 +90,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: 'white',
         paddingTop: 20
+    },
+    emptyState: {
+        flex: 1,
+        alignItems: 'center',
+        paddingTop: 50
+    },
+    emptyStateText: {
+        fontSize: 17
     }
 });
 
@@ -138,10 +146,12 @@ class LogsScreen extends React.Component {
             return (<View></View>)
         }
 
-        const sections = service.get('logs').map(c => ({
-            title: c.name,
-            data: c.logs.events
-        }));
+        const sections = service.get('logs')
+                                .filter(container => container.logs.events.length)
+                                .map(c => ({
+                                    title: c.name,
+                                    data: c.logs.events
+                                }));
 
         return (
             <View style={styles.logsScreenView}>
@@ -156,6 +166,13 @@ class LogsScreen extends React.Component {
                             onRefresh={this.loadLogs.bind(this)}
                         />
                     }
+                    ListEmptyComponent={() => (
+                        <View style={styles.emptyState}>
+                            <Text style={styles.emptyStateText}>
+                                No logs found.
+                            </Text>
+                        </View>
+                    )}
                 ></SectionList>
             </View>
         );
@@ -201,22 +218,17 @@ class EventsScreen extends React.Component {
                             onRefresh={this.loadEvents.bind(this)}
                         />
                     }
+                    ListEmptyComponent={() => (
+                        <View style={styles.emptyState}>
+                            <Text style={styles.emptyStateText}>
+                                No events found.
+                            </Text>
+                        </View>
+                    )}
                 />
             </View>
         );
     }
-}
-
-function AlarmLine(alarm) {
-    const operatorFormat = {
-        GreaterThanOrEqualToThreshold: '>=',
-        GreaterThanThreshold: '>',
-        LessThanThreshold: '<',
-        LessThanOrEqualToThreshold: '<='
-    };
-    const color = alarm.item.state === 'ALARM' ? '#E31020' : '#118445';
-
-    return <Text style={[styles.alarm, {color}]}>{alarm.item.metric} {operatorFormat[alarm.item.operator]} {alarm.item.threshold} {alarm.item.state}</Text>;
 }
 
 function ServiceDetailsTabBar({ navigation }) {
