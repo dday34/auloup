@@ -17,6 +17,7 @@ A mobile application that helps you monitor your services on Amazon Elastic Cont
 - [x] Ability to see Cloudwatch alarms linked to a service
 - [x] See last 10 events for a given service
 - [x] Ability to see the last 10 lines of cloudwatch logs for a given service
-- [ ] Empty state when there is no unhealthy services
-- [ ] Ability to see when was the Cloudwatch alarms triggered on a service
-- [ ] Ability to see when was the last deployment for a service (and how many tasks are running)
+- [ ] Ability to see how many task are running on a service currently
+- [ ] Ability to see when was the last deployment for a service
+- [ ] Ability to see a graph with CPU over time for a given service
+- [ ] Ability to see a graph with memory over time for a given service
