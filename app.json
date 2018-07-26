@@ -9,6 +9,7 @@
           "bundleIdentifier": "com.dsendner.spyglassforamazonecs"
       },
       "android": {
+          "versionCode": 2,
           "package": "com.dsendner.spyglassforamazonecs",
           "permissions": [
               "READ_INTERNAL_STORAGE",
